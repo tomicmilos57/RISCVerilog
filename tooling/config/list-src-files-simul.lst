@@ -1,0 +1,3 @@
+testbench/mainMemory_tb.v
+src/my_memory/mainMemory.v
+src/modules/risingEdge.v
