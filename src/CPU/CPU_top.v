@@ -35,7 +35,7 @@ program_counter m_PC(.i_clk(i_clk), .i_PC(r_load_pc_data),
 //  State Machine
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg [2:0] w_state;
+wire w_state;
 
 control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV),
   .i_instruction(w_instruction), .o_state(w_state));
