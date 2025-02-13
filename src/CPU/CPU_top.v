@@ -25,20 +25,21 @@ instruction_register m_IR(.clk(i_clk), .in(i_bus_data), .valid(i_bus_DV),
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 wire [31:0] w_PC;
-reg [31:0] r_load_pc_data;
+wire [31:0] w_jump_address;
+wire w_jump_DV;
 
-program_counter m_PC(.i_clk(i_clk), .i_PC(r_load_pc_data),
-  .i_state(w_state), .i_instruction(w_instruction), .o_PC(w_PC));
-
+program_counter m_PC(.i_clk(i_clk), .i_jump_address(w_jump_address), .i_jump_DV(w_jump_DV),
+  .i_nextPC_DV(w_nextPC_DV), .o_PC(w_PC));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  State Machine
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 wire w_state;
+wire w_nextPC_DV;
 
-control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV),
-  .i_instruction(w_instruction), .o_state(w_state));
+control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instruction),
+  .o_w_nextPC_DV(w_nextPC_DV), .o_state(w_state));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -60,7 +61,8 @@ register_file m_RegFile(.i_clk(i_clk), .i_data(w_ALU_out), .i_IR(w_IR), .i_load(
 wire [31:0] w_ALU_out;
 
 alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
-  .i_regout1(w_registerout1), .i_regout2(w_registerout2), .o_aluout(w_ALU_out));
+  .i_regout1(w_registerout1), .i_regout2(w_registerout2), .o_aluout(w_ALU_out),
+  .o_jump_address(), .o_jump_DV());
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

@@ -8,8 +8,8 @@ input        clk;
 input [31:0] in;
 input        valid;
 input        state;
-input [31:0] out;
-input [31:0] instruction;
+output [31:0] out;
+output [31:0] instruction;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Combinational Logic
