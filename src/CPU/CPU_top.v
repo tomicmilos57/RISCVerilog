@@ -29,17 +29,17 @@ wire [31:0] w_jump_address;
 wire w_jump_DV;
 
 program_counter m_PC(.i_clk(i_clk), .i_jump_address(w_jump_address), .i_jump_DV(w_jump_DV),
-  .i_nextPC_DV(w_nextPC_DV), .o_PC(w_PC));
+  .i_load_PC(w_load_PC), .o_PC(w_PC));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  State Machine
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 wire w_state;
-wire w_nextPC_DV;
+wire w_load_PC;
 
 control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instruction),
-  .o_w_nextPC_DV(w_nextPC_DV), .o_state(w_state));
+  .o_load_PC(w_load_PC), .o_state(w_state));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
