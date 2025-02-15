@@ -46,7 +46,7 @@ control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instru
 //  Register File
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-wire w_load_reg_file; //TODO: assing this wire
+wire w_load_reg_file; //TODO: assign this wire
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
 
@@ -62,7 +62,7 @@ wire [31:0] w_ALU_out;
 
 alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
   .i_regout1(w_registerout1), .i_regout2(w_registerout2), .o_aluout(w_ALU_out),
-  .o_jump_address(), .o_jump_DV());
+  .o_jump_address(w_jump_address), .o_jump_DV(w_jump_DV));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

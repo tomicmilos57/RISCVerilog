@@ -16,7 +16,7 @@ output reg [31:0] o_regout2;
 //  Combinational Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg [31:0] regfile [0:31];
+reg signed [31:0] regfile [0:31];
 reg [31:0] r_IR;
 wire [4:0] w_select_regin = r_IR[11:7];
 wire [4:0] w_select_regout1 = r_IR[19:15];
