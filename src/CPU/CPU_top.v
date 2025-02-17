@@ -17,7 +17,7 @@ wire [31:0] w_IR;
 wire [31:0] w_instruction;
 
 //maybe instead of i_bus_DV -> re_bus_DV
-instruction_register m_IR(.clk(i_clk), .in(i_bus_data), .valid(i_bus_DV),
+instruction_register m_IR(.clk(i_clk), .in(w_IR_value), .valid(w_IR_DV),
   .state(w_state), .out(w_IR), .instruction(w_instruction));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -46,12 +46,15 @@ control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instru
 //  Register File
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-wire w_load_reg_file = w_alu_requests_load_to_regfile;
+wire [31:0] w_input_regfile = (w_alu_requests_load_to_regfile) ? w_ALU_out :
+                         (w_loaded_value_from_memory_DV)  ? w_loaded_value_from_memory : w_ALU_out;
+
+wire w_load_reg_file = w_alu_requests_load_to_regfile | w_loaded_value_from_memory_DV;
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
 
-register_file m_RegFile(.i_clk(i_clk), .i_data(w_ALU_out), .i_IR(w_IR), .i_load(w_load_reg_file),
-  .o_regout1(w_registerout1), .o_regout2(w_registerout2));
+register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
+  .i_load(w_load_reg_file), .o_regout1(w_registerout1), .o_regout2(w_registerout2));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -71,11 +74,31 @@ alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
 //  Memory Controler
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-memory_controler m_memory_controler(.i_clk(i_clk), .i_instruction(w_instruction),
-  .i_regout1(w_registerout1), .i_regout2(w_registerout2), .i_PC(w_PC), .i_IR(w_IR),
-  .i_bhw(o_bhw), .i_bus_address(o_bus_address), .i_bus_data(o_bus_data),
-  .i_bus_DV(o_bus_DV), .i_write_notread(o_write_notread), .i_state(w_state));
+wire [31:0] w_bus_data;
+wire [31:0] w_bus_address;
+wire        w_bus_DV;
+wire [2:0]  w_bhw;
+wire        w_write_notread;
 
+assign o_bus_data = w_bus_data;
+assign o_bus_address = w_bus_address;
+assign o_bus_DV = w_bus_DV;
+assign o_bhw = w_bhw;
+assign o_write_notread = w_write_notread;
+
+wire [31:0] w_loaded_value_from_memory;
+wire        w_loaded_value_from_memory_DV;
+
+wire [31:0] w_IR_value;
+wire        w_IR_DV;
+
+load_store m_memory_controler(.i_clk(i_clk), .i_instruction(w_instruction),
+  .i_regout1(w_registerout1), .i_regout2(w_registerout2), .i_PC(w_PC), .i_IR(w_IR),
+  .i_input_bus_data(i_bus_data), .i_input_bus_DV(i_bus_DV), .i_state(w_state),
+  .o_bhw(w_bhw), .o_bus_address(w_bus_address), .o_bus_data(w_bus_data),
+  .o_bus_DV(w_bus_DV), .o_write_notread(w_write_notread),
+  .o_loaded_value(w_loaded_value_from_memory), .o_loaded_value_DV(w_loaded_value_from_memory_DV),
+  .o_IR_value(w_IR_value), .o_IR_DV(w_IR_DV));
 
 endmodule
 
