@@ -46,7 +46,7 @@ control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instru
 //  Register File
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-wire w_load_reg_file; //TODO: assign this wire
+wire w_load_reg_file = w_alu_requests_load_to_regfile;
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
 
@@ -59,9 +59,11 @@ register_file m_RegFile(.i_clk(i_clk), .i_data(w_ALU_out), .i_IR(w_IR), .i_load(
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 wire [31:0] w_ALU_out;
+wire w_alu_requests_load_to_regfile;
 
 alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
-  .i_regout1(w_registerout1), .i_regout2(w_registerout2), .o_aluout(w_ALU_out),
+  .i_A(w_registerout1), .i_B(w_registerout2), .i_PC(w_PC),
+  .o_load_regfile(w_alu_requests_load_to_regfile), .o_aluout(w_ALU_out),
   .o_jump_address(w_jump_address), .o_jump_DV(w_jump_DV));
 
 
