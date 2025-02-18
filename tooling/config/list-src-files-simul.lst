@@ -1,3 +1,10 @@
-testbench/mainMemory_tb.v
+testbench/cpu_tb.v
 src/my_memory/mainMemory.v
 src/modules/risingEdge.v
+src/CPU/CPU_top.v
+src/CPU/alu.v
+src/CPU/control_unit.v
+src/CPU/instruction_register.v
+src/CPU/load_store.v
+src/CPU/program_counter.v
+src/CPU/register_file.v

@@ -40,7 +40,7 @@ localparam integer WAITING = 1'b1;
 always @(posedge i_clk) begin
   o_bus_DV <= 1'b0;
   o_loaded_value_DV <= 1'b0;
-  if(state == 1'b0)begin //FETCH PHASE
+  if(i_state == 1'b0)begin //FETCH PHASE
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b100;
