@@ -68,7 +68,6 @@ wire [31:0] w_registerout2;
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 
-//maybe instead of i_bus_DV -> re_bus_DV
 instruction_register m_IR(.clk(i_clk), .in(w_IR_value), .valid(w_IR_DV),
   .state(w_state), .out(w_IR), .instruction(w_instruction), .o_fetch_over(w_fetch_over));
 

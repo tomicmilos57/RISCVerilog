@@ -81,7 +81,7 @@ always @(posedge i_clk)begin
     32'd15:begin r_result <= i_A / i_B; r_load_regfile <= 1'd1; end// DIVU
     32'd16:begin r_result <= i_A % i_B; r_load_regfile <= 1'd1; end// REM
     32'd17:begin r_result <= i_A % i_B; r_load_regfile <= 1'd1; end// REMU
-    32'd18:begin r_result <= i_A + w_se_immed;end// ADDI
+    32'd18:begin r_result <= i_A + w_se_immed; r_load_regfile <= 1'd1; end// ADDI
     32'd19: begin               // SLTI
       if($signed(i_A) < $signed(w_se_immed))begin
         r_result <= 32'd1;
@@ -100,12 +100,12 @@ always @(posedge i_clk)begin
       end
         r_load_regfile <= 1'd1;
     end
-    32'd21: begin r_result <= i_A ^ w_se_immed; end// XORI
-    32'd22: begin r_result <= i_A | w_se_immed; end// ORI
-    32'd23: begin r_result <= i_A & w_se_immed; end// ANDI
-    32'd24: begin r_result <= i_A << w_immed[4:0]; end// SLLI
-    32'd25: begin r_result <= i_A >> w_immed[4:0]; end// SRLI
-    32'd26: begin r_result <= i_A >>> w_immed[4:0]; end// SRAI
+    32'd21: begin r_result <= i_A ^ w_se_immed; r_load_regfile <= 1'd1; end// XORI
+    32'd22: begin r_result <= i_A | w_se_immed; r_load_regfile <= 1'd1; end// ORI
+    32'd23: begin r_result <= i_A & w_se_immed; r_load_regfile <= 1'd1; end// ANDI
+    32'd24: begin r_result <= i_A << w_immed[4:0]; r_load_regfile <= 1'd1; end// SLLI
+    32'd25: begin r_result <= i_A >> w_immed[4:0]; r_load_regfile <= 1'd1; end// SRLI
+    32'd26: begin r_result <= i_A >>> w_immed[4:0]; r_load_regfile <= 1'd1; end// SRAI
     32'd27: ;// LB
     32'd28: ;// LH
     32'd29: ;// LW
