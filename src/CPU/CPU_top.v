@@ -22,6 +22,7 @@ wire w_jump_DV;
 //STATE MACHINE
 wire w_state;
 wire w_load_PC;
+wire w_start_fetch;
 
 wire FETCH = w_state == 1'h0;
 wire EXECUTE = w_state == 1'h1;
@@ -52,6 +53,8 @@ wire        w_loaded_value_from_memory_DV;
 wire [31:0] w_IR_value;
 wire        w_IR_DV;
 
+wire w_ld_st_finnished;
+
 //REGFILE
 wire [31:0] w_input_regfile = (w_alu_exec) ? w_ALU_out :
                          (w_loaded_value_from_memory_DV)  ? w_loaded_value_from_memory : w_ALU_out;
@@ -64,28 +67,35 @@ wire [31:0] w_registerout2;
 //  Instruction Register
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+
 //maybe instead of i_bus_DV -> re_bus_DV
 instruction_register m_IR(.clk(i_clk), .in(w_IR_value), .valid(w_IR_DV),
   .state(w_state), .out(w_IR), .instruction(w_instruction), .o_fetch_over(w_fetch_over));
+
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Program Counter
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+
 program_counter m_PC(.i_clk(i_clk), .i_jump_address(w_jump_address), .i_jump_DV(w_jump_DV),
   .i_load_PC(w_load_PC), .o_PC(w_PC));
+
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  State Machine
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over), .i_instruction(w_instruction),
-  .o_load_PC(w_load_PC), .o_state(w_state));
+
+control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over | w_ld_st_finnished),
+  .i_instruction(w_instruction), .o_load_PC(w_load_PC),
+  .o_state(w_state), .o_start_fetch(w_start_fetch));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Register File
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
 
 register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
   .i_load(w_load_reg_file), .o_regout1(w_registerout1), .o_regout2(w_registerout2));
@@ -94,6 +104,7 @@ register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  ALU
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
 
 alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
   .i_A(w_registerout1), .i_B(w_registerout2), .i_PC(w_PC),
@@ -104,13 +115,16 @@ alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Memory Controler
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-load_store m_memory_controler(.i_clk(i_clk), .i_instruction(w_instruction),
+
+
+load_store m_load_store(.i_clk(i_clk), .i_instruction(w_instruction),
   .i_regout1(w_registerout1), .i_regout2(w_registerout2), .i_PC(w_PC), .i_IR(w_IR),
   .i_input_bus_data(i_bus_data), .i_input_bus_DV(i_bus_DV), .i_state(w_state),
   .o_bhw(w_bhw), .o_bus_address(w_bus_address), .o_bus_data(w_bus_data),
-  .o_bus_DV(w_bus_DV), .o_write_notread(w_write_notread),
+  .o_bus_DV(w_bus_DV), .o_write_notread(w_write_notread), .o_ld_st_finnished(w_ld_st_finnished),
   .o_loaded_value(w_loaded_value_from_memory), .o_loaded_value_DV(w_loaded_value_from_memory_DV),
-  .o_IR_value(w_IR_value), .o_IR_DV(w_IR_DV));
+  .o_IR_value(w_IR_value), .o_IR_DV(w_IR_DV), .i_start_fetch(w_start_fetch));
+
 
 endmodule
 

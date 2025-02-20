@@ -27,12 +27,11 @@ wire signed [11:0] w_immed = i_IR[31:20];
 wire signed [31:0] w_se_immed = { {20{i_IR[31]}}, i_IR[31:20] };
 wire signed [31:0] w_se_immedLUI = { i_IR[31:12], {12{1'd0}}};
 
-wire w_branch_offset;
-assign w_branch_offset = { {20{i_IR[31]}}, i_IR[31], i_IR[7], i_IR[30:25], i_IR[11:8], 1'b0 } << 1;
+wire [31:0] w_branch_offset;
+assign w_branch_offset = { {20{i_IR[31]}}, i_IR[31], i_IR[7], i_IR[30:25], i_IR[11:8], 1'b0 };
 
-wire w_jal_offset;
-assign w_jal_offset = { {12{i_instruction[31]}}, i_instruction[31], i_instruction[19:12],
-  i_instruction[20], i_instruction[30:21], 1'b0 } << 1;
+wire [31:0] w_jal_offset;
+assign w_jal_offset = { {12{i_IR[31]}}, i_IR[31], i_IR[19:12], i_IR[20], i_IR[30:21], 1'b0 };
 
 reg signed [31:0] r_address = 32'd0;
 assign o_jump_address = r_address;

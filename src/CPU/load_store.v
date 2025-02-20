@@ -8,6 +8,7 @@ module load_store (
   input wire        i_state,
   input wire        i_input_bus_DV,
   input wire [31:0] i_input_bus_data,
+  input wire        i_start_fetch,
 
   output reg [2:0]  o_bhw = 3'd0,
   output reg [31:0] o_bus_address = 32'd0,
@@ -19,7 +20,9 @@ module load_store (
   output reg        o_loaded_value_DV = 1'd0,
 
   output reg [31:0] o_IR_value = 32'd0,
-  output reg        o_IR_DV = 1'd0
+  output reg        o_IR_DV = 1'd0,
+
+  output            o_ld_st_finnished
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -29,9 +32,15 @@ module load_store (
 wire signed [31:0] w_se_offset = { {20{i_IR[31]}}, i_IR[31:20] };
 
 reg r_local_state = 1'b0;
+reg r_first_fetch = 1'b1;
 
 localparam integer READY = 1'b0;
 localparam integer WAITING = 1'b1;
+
+integer integer_number_of_fetch = 32'd0; //ONLY FOR SIMULATION
+
+assign o_ld_st_finnished = (i_instruction >= 32'd27 & i_instruction <= 32'd34) & i_state == 1'b1 &
+  r_local_state == WAITING & i_input_bus_DV == 1'b1;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
@@ -43,7 +52,9 @@ always @(posedge i_clk) begin
   o_IR_DV <= 1'b0;
   if(i_state == 1'b0)begin //FETCH PHASE
 
-      if(r_local_state == READY)begin
+      if(r_local_state == READY & (i_start_fetch | r_first_fetch))begin
+        r_first_fetch <= 1'b0;
+        integer_number_of_fetch = integer_number_of_fetch + 32'd1;
         o_bhw <= 3'b100;
         o_bus_address <= i_PC;
         o_write_notread <= 1'b0;
