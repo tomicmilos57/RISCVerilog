@@ -9,17 +9,17 @@ module load_store (
   input wire        i_input_bus_DV,
   input wire [31:0] i_input_bus_data,
 
-  output reg [2:0]  o_bhw,
-  output reg [31:0] o_bus_address,
-  output reg [31:0] o_bus_data,
-  output reg        o_bus_DV,
-  output reg        o_write_notread,
+  output reg [2:0]  o_bhw = 3'd0,
+  output reg [31:0] o_bus_address = 32'd0,
+  output reg [31:0] o_bus_data = 32'd0,
+  output reg        o_bus_DV = 1'd0,
+  output reg        o_write_notread = 1'd0,
 
-  output reg [31:0] o_loaded_value,
-  output reg        o_loaded_value_DV,
+  output reg [31:0] o_loaded_value = 32'd0,
+  output reg        o_loaded_value_DV = 1'd0,
 
-  output reg [31:0] o_IR_value,
-  output reg        o_IR_DV
+  output reg [31:0] o_IR_value = 32'd0,
+  output reg        o_IR_DV = 1'd0
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -40,6 +40,7 @@ localparam integer WAITING = 1'b1;
 always @(posedge i_clk) begin
   o_bus_DV <= 1'b0;
   o_loaded_value_DV <= 1'b0;
+  o_IR_DV <= 1'b0;
   if(i_state == 1'b0)begin //FETCH PHASE
 
       if(r_local_state == READY)begin

@@ -20,7 +20,7 @@ output reg o_jump_DV;
 //  Combinational Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg signed [31:0] r_result;
+reg signed [31:0] r_result = 32'd0;
 assign o_aluout = r_result;
 
 wire signed [11:0] w_immed = i_IR[31:20];
@@ -34,10 +34,10 @@ wire w_jal_offset;
 assign w_jal_offset = { {12{i_instruction[31]}}, i_instruction[31], i_instruction[19:12],
   i_instruction[20], i_instruction[30:21], 1'b0 } << 1;
 
-reg signed [31:0] r_address;
+reg signed [31:0] r_address = 32'd0;
 assign o_jump_address = r_address;
 
-reg r_load_regfile;
+reg r_load_regfile = 1'd0;
 assign o_load_regfile = r_load_regfile;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -48,10 +48,10 @@ always @(posedge i_clk)begin
   o_jump_DV <= 1'd0;
   r_load_regfile <= 1'd0;
   case (i_instruction)
-    32'd0:  begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// ADD
-    32'd1:  begin r_result <= i_A - i_B; r_load_regfile <= 1'd1; end// SUB
-    32'd2:  begin r_result <= i_A << i_B[4:0]; r_load_regfile <= 1'd1; end// SLL
-    32'd3:  begin               // SLT
+    32'd0: begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// ADD
+    32'd1: begin r_result <= i_A - i_B; r_load_regfile <= 1'd1; end// SUB
+    32'd2: begin r_result <= i_A << i_B[4:0]; r_load_regfile <= 1'd1; end// SLL
+    32'd3: begin               // SLT
       if($signed(i_A) < $signed(i_B))begin
         r_result <= 32'd1;
       end

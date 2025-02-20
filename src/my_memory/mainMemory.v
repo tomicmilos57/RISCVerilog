@@ -62,17 +62,17 @@ always @(posedge CLK) begin
       if (ADR > 32'h500) begin
         case (bhw)
           3'b001: DATAOUT <= {24'b0, stack[STACK_BASE - ADR]};
-          3'b010: DATAOUT <= {16'b0, stack[STACK_BASE - ADR], stack[STACK_BASE - ADR - 1]};
-          3'b100: DATAOUT <= {stack[STACK_BASE - ADR], stack[STACK_BASE - ADR - 1],
-            stack[STACK_BASE - ADR - 2], stack[STACK_BASE - ADR - 3]};
+          3'b010: DATAOUT <= {16'b0, stack[STACK_BASE - ADR - 1], stack[STACK_BASE - ADR]};
+          3'b100: DATAOUT <= {stack[STACK_BASE - ADR - 3], stack[STACK_BASE - ADR - 2],
+            stack[STACK_BASE - ADR - 1], stack[STACK_BASE - ADR]};
           default: ;
         endcase
       end
       else begin
         case (bhw)
           3'b001: DATAOUT <= {24'b0, mem[ADR]};
-          3'b010: DATAOUT <= {16'b0, mem[ADR], mem[ADR + 1]};
-          3'b100: DATAOUT <= {mem[ADR], mem[ADR + 1], mem[ADR + 2], mem[ADR + 3]};
+          3'b010: DATAOUT <= {16'b0, mem[ADR + 1], mem[ADR]};
+          3'b100: DATAOUT <= {mem[ADR + 3], mem[ADR + 2], mem[ADR + 1], mem[ADR]};
           default: ;
         endcase
       end

@@ -9,8 +9,8 @@ input        i_clk;
 input        i_load;
 input [31:0] i_data;
 input [31:0] i_IR;
-output reg [31:0] o_regout1;
-output reg [31:0] o_regout2;
+output reg [31:0] o_regout1 = 32'd0;
+output reg [31:0] o_regout2 = 32'd0;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Combinational Logic

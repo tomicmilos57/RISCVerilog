@@ -12,6 +12,7 @@ module CPU_top(
 //INSTRUCTION REGISTER
 wire [31:0] w_IR;
 wire [31:0] w_instruction;
+wire w_fetch_over;
 
 //PROGRAM COUNTER
 wire [31:0] w_PC;
@@ -22,9 +23,15 @@ wire w_jump_DV;
 wire w_state;
 wire w_load_PC;
 
+wire FETCH = w_state == 1'h0;
+wire EXECUTE = w_state == 1'h1;
+
 //ALU
 wire [31:0] w_ALU_out;
 wire w_alu_requests_load_to_regfile;
+
+wire w_alu_exec;
+assign w_alu_exec = w_alu_requests_load_to_regfile & EXECUTE;
 
 //MEM CONTROLER
 wire [31:0] w_bus_data;
@@ -46,10 +53,10 @@ wire [31:0] w_IR_value;
 wire        w_IR_DV;
 
 //REGFILE
-wire [31:0] w_input_regfile = (w_alu_requests_load_to_regfile) ? w_ALU_out :
+wire [31:0] w_input_regfile = (w_alu_exec) ? w_ALU_out :
                          (w_loaded_value_from_memory_DV)  ? w_loaded_value_from_memory : w_ALU_out;
 
-wire w_load_reg_file = w_alu_requests_load_to_regfile | w_loaded_value_from_memory_DV;
+wire w_load_reg_file = w_alu_exec | w_loaded_value_from_memory_DV;
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
 
@@ -59,7 +66,7 @@ wire [31:0] w_registerout2;
 
 //maybe instead of i_bus_DV -> re_bus_DV
 instruction_register m_IR(.clk(i_clk), .in(w_IR_value), .valid(w_IR_DV),
-  .state(w_state), .out(w_IR), .instruction(w_instruction));
+  .state(w_state), .out(w_IR), .instruction(w_instruction), .o_fetch_over(w_fetch_over));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Program Counter
@@ -72,7 +79,7 @@ program_counter m_PC(.i_clk(i_clk), .i_jump_address(w_jump_address), .i_jump_DV(
 //  State Machine
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-control_unit m_State(.i_clk(i_clk), .i_bus_DV(i_bus_DV), .i_instruction(w_instruction),
+control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over), .i_instruction(w_instruction),
   .o_load_PC(w_load_PC), .o_state(w_state));
 
 

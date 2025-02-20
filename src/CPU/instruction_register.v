@@ -1,4 +1,4 @@
-module instruction_register(clk, in, valid, state, out, instruction);
+module instruction_register(clk, in, valid, state, out, instruction, o_fetch_over);
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Ports
@@ -10,16 +10,20 @@ input        valid;
 input        state;
 output [31:0] out;
 output [31:0] instruction;
+output o_fetch_over;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Combinational Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg [31:0] r_IR;
+reg [31:0] r_IR = 32'd0;
 assign out = r_IR;
 
-reg[31:0] r_instruction;
+reg[31:0] r_instruction = 32'd0;
 assign instruction = r_instruction;
+
+reg r_fetch_over = 1'b0;
+assign o_fetch_over = r_fetch_over;
 
 wire FETCH = state == 1'h0;
 wire EXECUTE = state == 1'h1;
@@ -29,77 +33,88 @@ wire EXECUTE = state == 1'h1;
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 always @(posedge clk) begin
+  r_fetch_over <= 1'b0;
   if(FETCH & valid) begin
     r_IR <= in;
-    case (in)
+    r_fetch_over <= 1'b1;
+    if (in[6:0] == 7'b0110011) begin
       // R-type instructions (opcode = 0110011)
-      32'b0000000_?????_?????_000_?????_0110011: r_instruction = 32'd0;  // ADD
-      32'b0100000_?????_?????_000_?????_0110011: r_instruction = 32'd1;  // SUB
-      32'b0000000_?????_?????_001_?????_0110011: r_instruction = 32'd2;  // SLL
-      32'b0000000_?????_?????_010_?????_0110011: r_instruction = 32'd3;  // SLT
-      32'b0000000_?????_?????_011_?????_0110011: r_instruction = 32'd4;  // SLTU
-      32'b0000000_?????_?????_100_?????_0110011: r_instruction = 32'd5;  // XOR
-      32'b0000000_?????_?????_101_?????_0110011: r_instruction = 32'd6;  // SRL
-      32'b0100000_?????_?????_101_?????_0110011: r_instruction = 32'd7;  // SRA
-      32'b0000000_?????_?????_110_?????_0110011: r_instruction = 32'd8;  // OR
-      32'b0000000_?????_?????_111_?????_0110011: r_instruction = 32'd9;  // AND
+      if (in[31:25] == 7'b0000000 && in[14:12] == 3'b000) r_instruction = 32'd0;  // ADD
+      else if (in[31:25] == 7'b0100000 && in[14:12] == 3'b000) r_instruction = 32'd1;  // SUB
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b001) r_instruction = 32'd2;  // SLL
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b010) r_instruction = 32'd3;  // SLT
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b011) r_instruction = 32'd4;  // SLTU
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b100) r_instruction = 32'd5;  // XOR
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b101) r_instruction = 32'd6;  // SRL
+      else if (in[31:25] == 7'b0100000 && in[14:12] == 3'b101) r_instruction = 32'd7;  // SRA
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b110) r_instruction = 32'd8;  // OR
+      else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b111) r_instruction = 32'd9;  // AND
 
-      // Multiplication and Division instructions (RV32M, opcode = 0110011)
-      32'b0000001_?????_?????_000_?????_0110011: r_instruction = 32'd10; // MUL
-      32'b0000001_?????_?????_001_?????_0110011: r_instruction = 32'd11; // MULH
-      32'b0000001_?????_?????_010_?????_0110011: r_instruction = 32'd12; // MULHSU
-      32'b0000001_?????_?????_011_?????_0110011: r_instruction = 32'd13; // MULHU
-      32'b0000001_?????_?????_100_?????_0110011: r_instruction = 32'd14; // DIV
-      32'b0000001_?????_?????_101_?????_0110011: r_instruction = 32'd15; // DIVU
-      32'b0000001_?????_?????_110_?????_0110011: r_instruction = 32'd16; // REM
-      32'b0000001_?????_?????_111_?????_0110011: r_instruction = 32'd17; // REMU
-
-      // I-type instructions (opcode = 0010011)
-      32'b????????????_?????_000_?????_0010011: r_instruction = 32'd18; // ADDI
-      32'b????????????_?????_010_?????_0010011: r_instruction = 32'd19; // SLTI
-      32'b????????????_?????_011_?????_0010011: r_instruction = 32'd20; // SLTIU
-      32'b????????????_?????_100_?????_0010011: r_instruction = 32'd21; // XORI
-      32'b????????????_?????_110_?????_0010011: r_instruction = 32'd22; // ORI
-      32'b????????????_?????_111_?????_0010011: r_instruction = 32'd23; // ANDI
-      32'b0000000_?????_?????_001_?????_0010011: r_instruction = 32'd24; // SLLI
-      32'b0000000_?????_?????_101_?????_0010011: r_instruction = 32'd25; // SRLI
-      32'b0100000_?????_?????_101_?????_0010011: r_instruction = 32'd26; // SRAI
-
+        // Multiplication and Division instructions (RV32M, opcode = 0110011)
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b000) r_instruction = 32'd10; // MUL
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b001) r_instruction = 32'd11; // MULH
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b010) r_instruction = 32'd12; // MULHSU
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b011) r_instruction = 32'd13; // MULHU
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b100) r_instruction = 32'd14; // DIV
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b101) r_instruction = 32'd15; // DIVU
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b110) r_instruction = 32'd16; // REM
+       else if (in[31:25] == 7'b0000001 && in[14:12] == 3'b111) r_instruction = 32'd17; // REMU
+    end
+    else if (in[6:0] == 7'b0010011) begin
+    // I-type instructions (opcode = 0010011)
+       if (in[14:12] == 3'b000) r_instruction = 32'd18; // ADDI
+       else if (in[14:12] == 3'b010) r_instruction = 32'd19; // SLTI
+       else if (in[14:12] == 3'b011) r_instruction = 32'd20; // SLTIU
+       else if (in[14:12] == 3'b100) r_instruction = 32'd21; // XORI
+       else if (in[14:12] == 3'b110) r_instruction = 32'd22; // ORI
+       else if (in[14:12] == 3'b111) r_instruction = 32'd23; // ANDI
+       else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b001) r_instruction = 32'd24; // SLLI
+       else if (in[31:25] == 7'b0000000 && in[14:12] == 3'b101) r_instruction = 32'd25; // SRLI
+       else if (in[31:25] == 7'b0100000 && in[14:12] == 3'b101) r_instruction = 32'd26; // SRAI
+    end
+    else if (in[6:0] == 7'b0000011) begin
       // Load instructions (opcode = 0000011)
-      32'b????????????_?????_000_?????_0000011: r_instruction = 32'd27; // LB
-      32'b????????????_?????_001_?????_0000011: r_instruction = 32'd28; // LH
-      32'b????????????_?????_010_?????_0000011: r_instruction = 32'd29; // LW
-      32'b????????????_?????_100_?????_0000011: r_instruction = 32'd30; // LBU
-      32'b????????????_?????_101_?????_0000011: r_instruction = 32'd31; // LHU
-
+      if (in[14:12] == 3'b000) r_instruction = 32'd27; // LB
+      else if (in[14:12] == 3'b001) r_instruction = 32'd28; // LH
+      else if (in[14:12] == 3'b010) r_instruction = 32'd29; // LW
+      else if (in[14:12] == 3'b100) r_instruction = 32'd30; // LBU
+      else if (in[14:12] == 3'b101) r_instruction = 32'd31; // LHU
+    end
+    else if (in[6:0] == 7'b0100011) begin
       // S-type instructions (opcode = 0100011)
-      32'b????????????_?????_000_?????_0100011: r_instruction = 32'd32; // SB
-      32'b????????????_?????_001_?????_0100011: r_instruction = 32'd33; // SH
-      32'b????????????_?????_010_?????_0100011: r_instruction = 32'd34; // SW
-
+      if (in[14:12] == 3'b000) r_instruction = 32'd32; // SB
+      else if (in[14:12] == 3'b001) r_instruction = 32'd33; // SH
+      else if (in[14:12] == 3'b010) r_instruction = 32'd34; // SW
+    end
+    else if (in[6:0] == 7'b1100011) begin
       // B-type instructions (opcode = 1100011)
-      32'b????????????_?????_000_?????_1100011: r_instruction = 32'd35; // BEQ
-      32'b????????????_?????_001_?????_1100011: r_instruction = 32'd36; // BNE
-      32'b????????????_?????_100_?????_1100011: r_instruction = 32'd37; // BLT
-      32'b????????????_?????_101_?????_1100011: r_instruction = 32'd38; // BGE
-      32'b????????????_?????_110_?????_1100011: r_instruction = 32'd39; // BLTU
-      32'b????????????_?????_111_?????_1100011: r_instruction = 32'd40; // BGEU
-
+      if (in[14:12] == 3'b000) r_instruction = 32'd35; // BEQ
+      else if (in[14:12] == 3'b001) r_instruction = 32'd36; // BNE
+      else if (in[14:12] == 3'b100) r_instruction = 32'd37; // BLT
+      else if (in[14:12] == 3'b101) r_instruction = 32'd38; // BGE
+      else if (in[14:12] == 3'b110) r_instruction = 32'd39; // BLTU
+      else if (in[14:12] == 3'b111) r_instruction = 32'd40; // BGEU
+    end
+    else if (in[6:0] == 7'b1101111) begin
       // J-type instructions (opcode = 1101111)
-      32'b????????????????????_?????_1101111: r_instruction = 32'd41; // JAL
-
+      r_instruction = 32'd41; // JAL
+    end
+    else if (in[6:0] == 7'b1100111) begin
       // I-type instructions (opcode = 1100111)
-      32'b????????????_?????_000_?????_1100111: r_instruction = 32'd42; // JALR
-
+      if (in[14:12] == 3'b000) r_instruction = 32'd42; // JALR
+    end
+    else if (in[6:0] == 7'b0110111) begin
       // U-type instructions (opcode = 0110111)
-      32'b????????????????????_?????_0110111: r_instruction = 32'd43; // LUI
-
+      r_instruction = 32'd43; // LUI
+    end
+    else if (in[6:0] == 7'b0010111) begin
       // U-type instructions (opcode = 0010111)
-      32'b????????????????????_?????_0010111: r_instruction = 32'd44; // AUIPC
-
-      default: r_instruction = 32'd45; // Unknown or unsupported instruction
-    endcase
-    //Clear r_IR if EXECUTE state ?
+      r_instruction = 32'd44; // AUIPC
+    end
+    else begin
+      r_instruction = 32'd255; // Unknown or unsupported instruction
+  end
+  //Clear r_IR if EXECUTE state ?
   end
 end
 
