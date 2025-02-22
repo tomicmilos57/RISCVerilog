@@ -121,7 +121,10 @@ always @(posedge i_clk)begin
       end
     end
     32'd36: begin
-      if(i_A != i_B) begin// BNE
+        $display("DOESNT WORKS offset = %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", w_branch_offset);
+        $display("i_A = %d, i_B = %d", i_A, i_B);
+      if($signed(i_A) != $signed(i_B)) begin// BNE
+        $display("WORKS offset = %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", w_branch_offset);
         o_jump_DV <= 1'd1;
         r_address <= w_branch_offset + i_PC;
       end

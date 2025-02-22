@@ -70,6 +70,7 @@ always @(posedge i_clk) begin
         end
       end
 
+        // $display("FETCH, ADDR = %h, numOfFetch = %d", i_PC, integer_number_of_fetch);
   end
   else                   //EXECUTE PHASE
   case (i_instruction)
@@ -116,7 +117,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b100;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= $signed(i_regout1) + $signed(w_se_offset);
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -227,6 +228,8 @@ always @(posedge i_clk) begin
 
     default: ;
   endcase
+  // $display("LoadStr, ADDR = %h, DATA = %h, numOfFetch = %d", i_regout1 + w_se_offset,
+    // i_regout2, integer_number_of_fetch);
 end
 
 endmodule

@@ -27,8 +27,10 @@ always @(posedge i_clk)begin
     if(i_jump_DV)begin
       r_PC <= i_jump_address;
     end
-    else
+    else begin
+      $display("PC = %h", r_PC + 32'd4);
       r_PC <= r_PC + 32'd4;
+    end
 
   end
 

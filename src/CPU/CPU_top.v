@@ -6,7 +6,8 @@ module CPU_top(
   output [31:0] o_bus_address,
   output        o_bus_DV,
   output [2:0]  o_bhw,
-  output        o_write_notread
+  output        o_write_notread,
+  output [31:0] o_reg5
 );
 
 //INSTRUCTION REGISTER
@@ -62,6 +63,9 @@ wire [31:0] w_input_regfile = (w_alu_exec) ? w_ALU_out :
 wire w_load_reg_file = w_alu_exec | w_loaded_value_from_memory_DV;
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
+wire [31:0] w_reg5;
+
+assign o_reg5 = w_reg5;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Instruction Register
@@ -97,7 +101,8 @@ control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over | w_ld_st_finnished),
 
 
 register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
-  .i_load(w_load_reg_file), .o_regout1(w_registerout1), .o_regout2(w_registerout2));
+  .i_load(w_load_reg_file), .o_regout1(w_registerout1), .o_regout2(w_registerout2),
+  .o_reg5(w_reg5));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

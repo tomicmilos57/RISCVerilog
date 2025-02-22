@@ -1,5 +1,5 @@
 module register_file(i_clk, i_data, i_IR, i_load,
-  o_regout1, o_regout2);
+  o_regout1, o_regout2, o_reg5);
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Ports
@@ -11,6 +11,7 @@ input [31:0] i_data;
 input [31:0] i_IR;
 output [31:0] o_regout1;
 output [31:0] o_regout2;
+output [31:0] o_reg5;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Combinational Logic
@@ -23,6 +24,7 @@ wire [4:0] w_select_regout2 = i_IR[24:20];
 
 assign o_regout1 = (w_select_regout1 == 5'd0) ? 32'd0 : regfile[w_select_regout1];
 assign o_regout2 = (w_select_regout2 == 5'd0) ? 32'd0 : regfile[w_select_regout2];
+assign o_reg5 = regfile[5];
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
@@ -39,7 +41,7 @@ end
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Simulation Help
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-
+/*
 wire [31:0] reg0 = regfile[0];
 wire [31:0] reg1 = regfile[1];
 wire [31:0] reg2 = regfile[2];
@@ -73,5 +75,15 @@ wire [31:0] reg29 = regfile[29];
 wire [31:0] reg30 = regfile[30];
 wire [31:0] reg31 = regfile[31];
 
+integer i = 32'd0;
+
+initial begin
+
+  for( i = 32'd0; i < 32'd32; i = i + 32'd1) begin
+    regfile[i] <= 32'd0;
+  end
+
+end
+*/
 endmodule
 

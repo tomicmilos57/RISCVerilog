@@ -11,21 +11,25 @@ module mainMemory (
 
 localparam STACK_BASE = 32'h1000;
 
-reg [7:0] mem  [0:200];
-reg [7:0] stack[0:100];
+reg [7:0] mem  [0:300];
+reg [7:0] stack[0:200];
 reg sendReg;
 risingEdge risingEdgeInst (.sig(sendReg), .clk(CLK), .pe(send));
 
 initial begin
-  $readmemh("../misc/misa.mif", mem);
+  $readmemh("../misc/00ret.hex", mem);
 end
 
 always @(posedge CLK) begin
+  if(ADR > 32'h1000) $stop;
   DATAOUT <= 32'b0;
   sendReg <= 1'b0;
   if (request) begin
+    // if(ADR == 32'h0fcc) $stop;
+
     if (WR_nRD) begin
       if (ADR > 32'h500) begin
+        $display("WRIT on ADDR = %h, DATA = %h, bytes %d", ADR, DATA, bhw);
         case (bhw)
           3'b001: stack[STACK_BASE - ADR] <= DATA[7:0];
           3'b010: begin
@@ -60,6 +64,7 @@ always @(posedge CLK) begin
     end
     else begin
       if (ADR > 32'h500) begin
+        $display("READ on ADDR = %h, DATA = %h, bytes %d", ADR, DATA, bhw); // print istead of DATA, stack
         case (bhw)
           3'b001: DATAOUT <= {24'b0, stack[STACK_BASE - ADR]};
           3'b010: DATAOUT <= {16'b0, stack[STACK_BASE - ADR - 1], stack[STACK_BASE - ADR]};
