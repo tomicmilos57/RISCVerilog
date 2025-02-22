@@ -29,7 +29,8 @@ module load_store (
 //  Combinational Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-wire signed [31:0] w_se_offset = { {20{i_IR[31]}}, i_IR[31:20] };
+wire signed [31:0] w_se_load_offset = { {20{i_IR[31]}}, i_IR[31:20] };
+wire signed [31:0] w_se_store_offset = { {20{i_IR[31]}}, i_IR[31:25], i_IR[11:7]};
 
 reg r_local_state = 1'b0;
 reg r_first_fetch = 1'b1;
@@ -79,7 +80,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b001;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_load_offset;
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -98,7 +99,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b010;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_load_offset;
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -117,7 +118,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b100;
-        o_bus_address <= $signed(i_regout1) + $signed(w_se_offset);
+        o_bus_address <= $signed(i_regout1) + $signed(w_se_load_offset);
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -136,7 +137,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b001;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_load_offset;
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -155,7 +156,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b010;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_load_offset;
         o_write_notread <= 1'b0;
         o_bus_DV <= 1'b1;
         r_local_state <= WAITING;
@@ -175,7 +176,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b001;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_store_offset;
         o_bus_data <= { {24{1'b0}}, i_regout2[7:0] };
         o_write_notread <= 1'b1;
         o_bus_DV <= 1'b1;
@@ -193,7 +194,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b010;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_store_offset;
         o_bus_data <= { {16{1'b0}}, i_regout2[15:0] };
         o_write_notread <= 1'b1;
         o_bus_DV <= 1'b1;
@@ -211,7 +212,7 @@ always @(posedge i_clk) begin
 
       if(r_local_state == READY)begin
         o_bhw <= 3'b100;
-        o_bus_address <= i_regout1 + w_se_offset;
+        o_bus_address <= i_regout1 + w_se_store_offset;
         o_bus_data <= i_regout2;
         o_write_notread <= 1'b1;
         o_bus_DV <= 1'b1;
@@ -228,7 +229,7 @@ always @(posedge i_clk) begin
 
     default: ;
   endcase
-  // $display("LoadStr, ADDR = %h, DATA = %h, numOfFetch = %d", i_regout1 + w_se_offset,
+  // $display("LoadStr, ADDR = %h, DATA = %h, numOfFetch = %d", i_regout1 + w_se_load_offset,
     // i_regout2, integer_number_of_fetch);
 end
 
