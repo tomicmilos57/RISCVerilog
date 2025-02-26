@@ -41,7 +41,7 @@ end
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Simulation Help
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-/*
+
 wire [31:0] reg0 = regfile[0];
 wire [31:0] reg1 = regfile[1];
 wire [31:0] reg2 = regfile[2];
@@ -84,6 +84,6 @@ initial begin
   end
 
 end
-*/
+
 endmodule
 

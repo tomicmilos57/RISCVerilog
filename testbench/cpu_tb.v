@@ -45,7 +45,7 @@ initial begin
 end
 
 initial begin
-  #10000;
+  #100000;
   $finish;
 end
 

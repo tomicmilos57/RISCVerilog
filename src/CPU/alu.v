@@ -161,7 +161,7 @@ always @(posedge i_clk)begin
     end// JAL
     32'd42: begin
       o_jump_DV <= 1'd1;
-      r_address <= w_jal_offset + i_PC;
+      r_address <= w_se_immed + i_A;
       r_result <= i_PC + 32'd4;
       r_load_regfile <= 1'd1;
     end// JALR
