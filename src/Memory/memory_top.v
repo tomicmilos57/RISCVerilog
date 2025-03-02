@@ -16,13 +16,13 @@ module memory_top(
 // input registres
 
 reg [7:0]  r_mdr [3:0]; // Memory Data Register
-reg [7:0]   r_mar; // Memory Address Register
-reg [2:0]   r_bhw_counter; // Byte-Half-Word
+reg [31:0]   r_mar; // Memory Address Register
+reg [2:0]   r_bhw; // Byte-Half-Word
 reg         r_write; // Write/Not_Read
 reg         r_send = 1'b0;
 reg [1:0]   r_counter;
 
-wire [7:0]   w_mar; // Memory Address Register
+wire [31:0]   w_mar; // Memory Address Register
 wire         w_write; // Write/Not_Read
 
 assign o_bus_data = {r_mdr[3], r_mdr[2], r_mdr[1], r_mdr[0]};
@@ -31,26 +31,26 @@ assign w_mar = r_mar;
 assign w_write = r_write;
 
 // Bootloader wires and regs
-wire w_boodloader_request;
 wire w_bootloader_DV;
+wire w_bootloader_receive;
 wire [7:0] w_bootloader_data_byte;
 
 wire [7:0] w_read_data; //This register holds data read from submodule that is currently selected
-assign w_read_data = (w_bootloadeer_request & w_bootloader_DV) ? w_bootloader_data_byte
+assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte
                       : 8'h00;
 
 wire w_global_receive;
-assign w_global_receive = w_bootloader_DV; // All submodule receive signals OR-ed
+assign w_global_receive = w_bootloader_receive; // All submodule receive signals OR-ed
 
 // submodule interface wires and regs
 wire[7:0]    w_data_to_submodule; // global data to submodule
-assign w_data_to_submodule = (r_bhw == 3'b001) ? r_mdr[7:0]   :
-                             (r_bhw == 3'b010) ? r_mdr[15:8]  :
-                             (r_bhw == 3'b011) ? r_mdr[23:16] :
-                             (r_bhw == 3'b100) ? r_mdr[31:24] :
+assign w_data_to_submodule = (r_bhw == 3'b001) ? r_mdr[0]   :
+                             (r_bhw == 3'b010) ? r_mdr[1]  :
+                             (r_bhw == 3'b011) ? r_mdr[2] :
+                             (r_bhw == 3'b100) ? r_mdr[3] :
                              8'h00;
 
-reg[7:0]    r_request;  // global request to submodule
+reg    r_request;  // global request to submodule
 
 reg status = 1'b0;
 localparam integer WAITING = 1'b0;
@@ -64,15 +64,15 @@ localparam integer WAITINGFORRESPONSE = 1'b1;
 //  Memory Map
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-memory_map memory_map(.i_address(w_mar), .o_bootloader_DV(w_bootloadeer_DV));
+memory_map memory_map(.i_address(w_mar), .o_bootloader_DV(w_bootloader_DV));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-wire r_bootloader_request = w_bootloader_DV & r_request;
-cache8KB bootloader(.i_clk(i_clk), .i_data(w_data), .i_address(w_mar), .i_write(w_write),
-  .i_request(r_bootloader_request), .o_data(w_bootloader_data), .o_data_DV(w_bootloader_DV));
+cache8KB bootloader(.i_clk(i_clk), .i_data(w_data_to_submodule), .i_address(w_mar),
+  .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
+  .o_data_DV(w_bootloader_receive));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
@@ -81,10 +81,13 @@ cache8KB bootloader(.i_clk(i_clk), .i_data(w_data), .i_address(w_mar), .i_write(
 always @(posedge i_clk) begin
   r_request <= 1'b0;
   r_send <= 1'b0;
-  if(status == WAITING && i_request) begin
-    r_mdr <= i_bus_data;
+  if(status == WAITING && i_bus_DV) begin
+    r_mdr[0] <= i_bus_data[7:0];
+    r_mdr[1] <= i_bus_data[15:8];
+    r_mdr[2] <= i_bus_data[23:16];
+    r_mdr[3] <= i_bus_data[31:24];
     r_mar <= i_bus_address;
-    r_bhw_counter <= i_bhw;
+    r_bhw <= i_bhw;
     r_write <= i_write_notread;
     status <= FETCHING;
     r_counter <= 2'b00;

@@ -4,7 +4,7 @@ module cache8KB (
   input wire [31:0] i_address,
   input wire i_write,
   input wire i_request,
-  output reg [7:0] o_data,
+  output wire [7:0] o_data,
   output reg o_data_DV
 );
 
@@ -14,20 +14,37 @@ module cache8KB (
 
 reg [1:0] r_counter = 2'b00;
 
-wire outclock;
 altsyncram altsyncram_component (
   .address_a(i_address[12:0]),    // Address input
-  .clock0(i_clk),      // Input clock
-  .data_a(i_data),         // Data input
-  .wren_a(i_write & i_request),         // Write enable
-  .clock1(outclock),    // Output clock
-  .q_a(o_data)        // Data output
+  .clock0(i_clk),                // Input clock
+  .data_a(i_data),               // Data input
+  .wren_a(i_write & i_request),  // Write enable
+  .q_a(o_data),              // Data output (connected to a wire)
+  .clock1(i_clk),             // Output clock
+  .wren_b(1'b0),                 // Unused write enable for port B
+  .rden_a(1'b1),                 // Read enable for port A (always enabled)
+  .rden_b(1'b0),                 // Unused read enable for port B
+  .data_b(8'b0),                 // Unused data input for port B
+  .address_b(13'b0),             // Unused address input for port B
+  .clocken0(1'b1),               // Clock enable for port A (always enabled)
+  .clocken1(1'b0),               // Unused clock enable for port B
+  .clocken2(1'b0),               // Unused clock enable
+  .clocken3(1'b0),               // Unused clock enable
+  .aclr0(1'b0),                  // Unused asynchronous clear for port A
+  .aclr1(1'b0),                  // Unused asynchronous clear for port B
+  .byteena_a(1'b1),              // Byte enable for port A (always enabled)
+  .byteena_b(1'b0),              // Unused byte enable for port B
+  .addressstall_a(1'b0),         // Unused address stall for port A
+  .addressstall_b(1'b0),         // Unused address stall for port B
+  .q_b(),                        // Unused data output for port B
+  .eccstatus()                   // Unused ECC status
 );
 
 // Set the parameters for the RAM
 defparam altsyncram_component.clock_enable_input_a = "BYPASS";
 defparam altsyncram_component.clock_enable_output_a = "BYPASS";
-defparam altsyncram_component.init_file = "../bootloader.mif";
+defparam altsyncram_component.init_file = "../../misc/bootloader.mif";
+defparam altsyncram_component.power_up_uninitialized = "FALSE";
 defparam altsyncram_component.intended_device_family = "Cyclone III";
 defparam altsyncram_component.lpm_type = "altsyncram";
 defparam altsyncram_component.numwords_a = 8192;

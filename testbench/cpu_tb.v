@@ -12,6 +12,7 @@ wire [31:0] w_output_bus_address;
 wire w_output_bus_DV;
 wire [2:0] w_output_bhw;
 wire w_output_write_notread;
+wire [31:0] w_reg5;
 
 CPU_top cpu(
   .i_clk(i_clk),
@@ -21,19 +22,31 @@ CPU_top cpu(
   .o_bus_address(w_output_bus_address),
   .o_bus_DV(w_output_bus_DV),
   .o_bhw(w_output_bhw),
-  .o_write_notread(w_output_write_notread)
+  .o_write_notread(w_output_write_notread),
+  .o_reg5(w_reg5)
 );
 
-mainMemory memory(
-  .request(w_output_bus_DV),
-  .bhw(w_output_bhw),
-  .WR_nRD(w_output_write_notread),
-  .ADR(w_output_bus_address),
-  .DATA(w_output_bus_data),
-  .DATAOUT(w_input_bus_data),
-  .send(w_input_bus_DV),
-  .CLK(i_clk)
+memory_top memory(
+  .i_clk(i_clk),
+  .i_bus_data(w_output_bus_data),
+  .i_bus_address(w_output_bus_address),
+  .i_bus_DV(w_output_bus_DV),
+  .i_bhw(w_output_bhw),
+  .i_write_notread(w_output_write_notread),
+  .o_bus_data(w_input_bus_data),
+  .o_bus_DV(w_input_bus_DV)
 );
+
+// mainMemory memory(
+//   .request(w_output_bus_DV),
+//   .bhw(w_output_bhw),
+//   .WR_nRD(w_output_write_notread),
+//   .ADR(w_output_bus_address),
+//   .DATA(w_output_bus_data),
+//   .DATAOUT(w_input_bus_data),
+//   .send(w_input_bus_DV),
+//   .CLK(i_clk)
+// );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic

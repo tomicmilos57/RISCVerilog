@@ -12,6 +12,7 @@ SIMUL_RUN_TCL_SCRIPT = ./config/run.tcl
 SIMUL_WAVEFORM_MACRO = ./config/waveform-define.do
 SIMUL_WAVEFORM_FILE = ./waveform.wlf
 SIMUL_VLOG_LOG_FILE = ./vlog_compile.log
+ALTERA_MF_LIB_PATH = /opt/altera131/quartus/eda/sim_lib
 # 1 (yes) -> Questa SIM
 # 0 (no)  -> ModelSim
 SIMUL_IS_QUESTA_USED = 0
@@ -143,7 +144,7 @@ SIMUL_VOPT_ARGS += -o $(SIMUL_OPTIMIZED_DESIGN)
 endif
 
 # vsim (simulator) command line option arguments
-SIMUL_VSIM_ARGS =
+SIMUL_VSIM_ARGS = -L altera_mf
 SIMUL_VSIM_ARGS += -lib $(SIMUL_LIB)
 SIMUL_VSIM_ARGS += -wlf $(SIMUL_WAVEFORM_FILE)
 SIMUL_VSIM_ARGS_GUI = $(SIMUL_VSIM_ARGS)
@@ -153,7 +154,12 @@ SIMUL_VSIM_ARGS_SHELL += -do "$(SIMUL_RUN_TCL_SCRIPT)"
 
 simul_all: simul_lib simul_cmp simul_run
 
-simul_lib:
+simul_lib_altera_mf:
+	@echo "$(SIMUL_TAG) Compiling Altera MF library."
+	$(SIMUL_TOOL_VLIB) altera_mf
+	$(SIMUL_TOOL_VLOG) -work altera_mf $(ALTERA_MF_LIB_PATH)/altera_mf.v
+
+simul_lib: simul_lib_altera_mf
 	@echo "$(SIMUL_TAG) Creating new library $(SIMUL_LIB)."
 	rm -rf $(SIMUL_LIB)
 	$(SIMUL_TOOL_VLIB) $(SIMUL_LIB)
