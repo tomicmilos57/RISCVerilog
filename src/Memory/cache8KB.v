@@ -7,7 +7,7 @@ module cache8KB #(
   input wire [ADDR_WIDTH-1:0] i_address,
   input wire i_write,
   input wire i_request,
-  output reg [DATA_WIDTH-1:0] o_data,
+  output wire [DATA_WIDTH-1:0] o_data,
   output reg o_data_DV
 );
 

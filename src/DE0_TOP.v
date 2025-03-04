@@ -104,7 +104,7 @@ module DE0_TOP (CLOCK_50,
                 GPIO1_CLKIN,
                 GPIO1_CLKOUT,
                 GPIO1_D);
-    
+
     ///////////// Clock Input //////////////////////////////////////////
     input         CLOCK_50;     //  50 MHz
     input         CLOCK_50_2;   //  50 MHz
@@ -123,7 +123,7 @@ module DE0_TOP (CLOCK_50,
     output        HEX3_DP;      //  Seven Segment Digit DP 3
     ///////////// LED //////////////////////////////////////////////////
     output [9:0]  LEDG;         //  LED Green[9:0]
-    
+
     ///////////// UART /////////////////////////////////////////////////
     output        UART_TXD;     //  UART Transmitter
     input         UART_RXD;     //  UART Receiver
@@ -183,15 +183,50 @@ module DE0_TOP (CLOCK_50,
     input  [1:0]  GPIO1_CLKIN;  //  GPIO Connection 1 Clock In Bus
     output [1:0]  GPIO1_CLKOUT; //  GPIO Connection 1 Clock Out Bus
     inout  [31:0] GPIO1_D;      //  GPIO Connection 1 Data Bus
-    
-    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
+
+    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
     //  REG/WIRE declarations
-    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
-    
-    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
+    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+    wire i_clk = CLOCK_50;
+    wire [31:0] w_input_bus_data;
+    wire w_input_bus_DV;
+    wire [31:0] w_output_bus_data;
+    wire [31:0] w_output_bus_address;
+    wire w_output_bus_DV;
+    wire [2:0] w_output_bhw;
+    wire w_output_write_notread;
+    wire [31:0] w_reg5;
+
+
+    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
     //  Structural coding
-    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
-    
-    m21_dataflow m21(.I0(SW[0]), .I1(SW[1]), .S0(~BUTTON[0]), .Y(LEDG[0]));
-    
+    // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+    CPU_top cpu(
+      .i_clk(i_clk),
+      .i_bus_data(w_input_bus_data),
+      .i_bus_DV(w_input_bus_DV),
+      .o_bus_data(w_output_bus_data),
+      .o_bus_address(w_output_bus_address),
+      .o_bus_DV(w_output_bus_DV),
+      .o_bhw(w_output_bhw),
+      .o_write_notread(w_output_write_notread),
+      .o_reg5(w_reg5)
+    );
+
+    memory_top memory(
+      .i_clk(i_clk),
+      .i_bus_data(w_output_bus_data),
+      .i_bus_address(w_output_bus_address),
+      .i_bus_DV(w_output_bus_DV),
+      .i_bhw(w_output_bhw),
+      .i_write_notread(w_output_write_notread),
+      .o_bus_data(w_input_bus_data),
+      .o_bus_DV(w_input_bus_DV)
+    );
+
+    seven_segment_32bit print(.i_data(w_reg5), .i_mode(1'b0),
+      .o_hex({HEX0_D, HEX1_D, HEX2_D, HEX3_D}));
+
 endmodule
+

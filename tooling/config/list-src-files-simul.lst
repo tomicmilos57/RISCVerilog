@@ -1,6 +1,8 @@
 testbench/cpu_tb.v
 src/my_memory/mainMemory.v
 src/modules/risingEdge.v
+src/modules/seven_segment_digit_interface.v
+src/modules/seven_segment_32bit.v
 src/CPU/CPU_top.v
 src/CPU/alu.v
 src/CPU/control_unit.v
