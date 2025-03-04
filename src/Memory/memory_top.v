@@ -74,7 +74,8 @@ cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(10)) bootloader(.i_clk(i_clk),
   .i_data(w_data_to_submodule), .i_address(w_mar[9:0]),
   .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
   .o_data_DV(w_bootloader_receive));
-
+// block_ram #(.DATA_WIDTH(8), .ADDR_WIDTH(10)) BRAM(.clk(i_clk), .we(w_write),
+//   .addr(w_mar[9:0]), .din(w_data_to_submodule), .dout(w_bootloader_data_byte));
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

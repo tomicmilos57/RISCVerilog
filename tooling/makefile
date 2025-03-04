@@ -12,6 +12,7 @@ SIMUL_RUN_TCL_SCRIPT = ./config/run.tcl
 SIMUL_WAVEFORM_MACRO = ./config/waveform-define.do
 SIMUL_WAVEFORM_FILE = ./waveform.wlf
 SIMUL_VLOG_LOG_FILE = ./vlog_compile.log
+ALTERA_MF_LIB_PATH = /opt/altera131/quartus/eda/sim_lib
 # 1 (yes) -> Questa SIM
 # 0 (no)  -> ModelSim
 SIMUL_IS_QUESTA_USED = 0
@@ -143,7 +144,7 @@ SIMUL_VOPT_ARGS += -o $(SIMUL_OPTIMIZED_DESIGN)
 endif
 
 # vsim (simulator) command line option arguments
-SIMUL_VSIM_ARGS =
+SIMUL_VSIM_ARGS = -L ./altera_mf
 SIMUL_VSIM_ARGS += -lib $(SIMUL_LIB)
 SIMUL_VSIM_ARGS += -wlf $(SIMUL_WAVEFORM_FILE)
 SIMUL_VSIM_ARGS_GUI = $(SIMUL_VSIM_ARGS)
@@ -153,7 +154,12 @@ SIMUL_VSIM_ARGS_SHELL += -do "$(SIMUL_RUN_TCL_SCRIPT)"
 
 simul_all: simul_lib simul_cmp simul_run
 
-simul_lib:
+simul_lib_altera_mf:
+	@echo "$(SIMUL_TAG) Compiling Altera MF library."
+	$(SIMUL_TOOL_VLIB) ./altera_mf
+	$(SIMUL_TOOL_VLOG) -work ./altera_mf $(ALTERA_MF_LIB_PATH)/altera_mf.v
+
+simul_lib: simul_lib_altera_mf
 	@echo "$(SIMUL_TAG) Creating new library $(SIMUL_LIB)."
 	rm -rf $(SIMUL_LIB)
 	$(SIMUL_TOOL_VLIB) $(SIMUL_LIB)
@@ -196,7 +202,7 @@ simul_wave_new: simul_run_sh
 
 simul_clean:
 	@echo "$(SIMUL_TAG) Cleaning directory."
-	rm -fr $(SIMUL_LIB) $(SIMUL_VLOG_LOG_FILE) $(SIMUL_WAVEFORM_FILE) transcript *~
+	rm -fr altera_mf $(SIMUL_LIB) $(SIMUL_VLOG_LOG_FILE) $(SIMUL_WAVEFORM_FILE) transcript *~
 
 # #######################################################################################
 # S Y N T H E S I S
@@ -320,7 +326,7 @@ smart.log: $(SYNTH_ASSIGNMENT_FILES)
 
 synth_clean:
 	@echo "$(SYNTH_TAG) Cleaning directory."
-	rm -rf db incremental_db hc_output
+	rm -rf db altera_mf incremental_db hc_output
 	rm -rf *.qpf *.qdf *.jdi
 	rm -rf  *.qsf *.sdc
 	rm -rf *.eqn *.pin *.sof *.pof
@@ -370,4 +376,3 @@ list_simul:
 list_synth:
 	@echo $(LIST_TAG) Created list of synthesis source files \(src/synthesis/*\)
 	$(file > $(LIST_FILE_SYNTH),$(call break,$(LIST_SYNTH)))
-
