@@ -15,12 +15,13 @@ module cache8KB #(
 //  MEMORY
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+wire w_wr = i_write & i_request;
 
 altsyncram altsyncram_component (
   .address_a(i_address),    // Address input
   .clock0(i_clk),                // Input clock
   .data_a(i_data),               // Data input
-  .wren_a(i_write & i_request),  // Write enable
+  .wren_a(w_wr),  // Write enable
   .q_a(o_data),              // Data output (connected to a wire)
   .clock1(i_clk),             // Output clock
   .wren_b(1'b0),                 // Unused write enable for port B

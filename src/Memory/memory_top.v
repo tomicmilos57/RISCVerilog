@@ -44,10 +44,10 @@ assign w_global_receive = w_bootloader_receive; // All submodule receive signals
 
 // submodule interface wires and regs
 wire[7:0]    w_data_to_submodule; // global data to submodule
-assign w_data_to_submodule = (r_bhw == 3'b001) ? r_mdr[0]   :
-                             (r_bhw == 3'b010) ? r_mdr[1]  :
-                             (r_bhw == 3'b011) ? r_mdr[2] :
-                             (r_bhw == 3'b100) ? r_mdr[3] :
+assign w_data_to_submodule = (r_bhw == 3'b100) ? r_mdr[0] :
+                             (r_bhw == 3'b011) ? r_mdr[1] :
+                             (r_bhw == 3'b010) ? r_mdr[2] :
+                             (r_bhw == 3'b001) ? r_mdr[3] :
                              8'h00;
 
 reg    r_request;  // global request to submodule
@@ -70,8 +70,8 @@ memory_map memory_map(.i_address(w_mar), .o_bootloader_DV(w_bootloader_DV));
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(10)) bootloader(.i_clk(i_clk),
-  .i_data(w_data_to_submodule), .i_address(w_mar[9:0]),
+cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
+  .i_data(w_data_to_submodule), .i_address(w_mar[11:0]),
   .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
   .o_data_DV(w_bootloader_receive));
 // block_ram #(.DATA_WIDTH(8), .ADDR_WIDTH(10)) BRAM(.clk(i_clk), .we(w_write),
@@ -104,7 +104,7 @@ always @(posedge i_clk) begin
       r_counter <= r_counter + 1;
       sub_status <= TOSEND;
       r_bhw = r_bhw - 1; // It is important that this is Blocking assignment
-      r_mdr[r_counter] <= w_read_data;
+      if(!w_write) r_mdr[r_counter] <= w_read_data;
       if(r_bhw == 3'b000) begin
         r_send <= 1'b1;
         status <= WAITING;

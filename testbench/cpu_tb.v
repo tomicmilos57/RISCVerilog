@@ -36,6 +36,17 @@ memory_top memory(
   .o_bus_data(w_input_bus_data),
   .o_bus_DV(w_input_bus_DV)
 );
+wire [6:0]  HEX0_D;
+wire        HEX0_DP;
+wire [6:0]  HEX1_D;
+wire        HEX1_DP;
+wire [6:0]  HEX2_D;
+wire        HEX2_DP;
+wire [6:0]  HEX3_D;
+wire        HEX3_DP;
+
+seven_segment_32bit print(.i_data(w_reg5), .i_mode(1'b0),
+  .o_hex({HEX0_D, HEX1_D, HEX2_D, HEX3_D}));
 
 // mainMemory memory(
 //   .request(w_output_bus_DV),
@@ -58,7 +69,7 @@ initial begin
 end
 
 initial begin
-  #100000;
+  #1000000;
   $finish;
 end
 
