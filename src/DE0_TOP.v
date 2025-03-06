@@ -225,8 +225,14 @@ module DE0_TOP (CLOCK_50,
       .o_bus_DV(w_input_bus_DV)
     );
 
-    seven_segment_32bit print(.i_data(w_reg5), .i_mode(1'b0),
-      .o_hex({HEX0_D, HEX1_D, HEX2_D, HEX3_D}));
+    seven_segment_32bit print(
+      .i_data(w_reg5),
+      .i_mode(1'b0),
+      .o_hex3(HEX0_D),
+      .o_hex2(HEX1_D),
+      .o_hex1(HEX2_D),
+      .o_hex0(HEX3_D)
+    );
 
 endmodule
 
