@@ -25,6 +25,19 @@ CPU_top cpu(
   .o_write_notread(w_output_write_notread),
   .o_reg5(w_reg5)
 );
+wire SDRAM_B0;
+wire SDRAM_B1;
+wire SDRAM_DQMH;
+wire SDRAM_DQML;
+wire SDRAM_WE;
+wire SDRAM_CAS;
+wire SDRAM_RAS;
+wire SDRAM_CS;
+wire SDRAM_CLK;
+wire SDRAM_CKE;
+wire [9:0] led;
+wire [11:0] SDRAM_A;
+wire [15:0] SDRAM_D;
 
 memory_top memory(
   .i_clk(i_clk),
@@ -34,7 +47,20 @@ memory_top memory(
   .i_bhw(w_output_bhw),
   .i_write_notread(w_output_write_notread),
   .o_bus_data(w_input_bus_data),
-  .o_bus_DV(w_input_bus_DV)
+  .o_bus_DV(w_input_bus_DV),
+  .SDRAM_B0(SDRAM_B0),
+  .SDRAM_B1(SDRAM_B1),
+  .SDRAM_DQMH(SDRAM_DQMH),
+  .SDRAM_DQML(SDRAM_DQML),
+  .SDRAM_WE(SDRAM_WE),
+  .SDRAM_CAS(SDRAM_CAS),
+  .SDRAM_RAS(SDRAM_RAS),
+  .SDRAM_CS(SDRAM_CS),
+  .SDRAM_CLK(SDRAM_CLK),
+  .SDRAM_CKE(SDRAM_CKE),
+  .led(led),
+  .SDRAM_A(SDRAM_A),
+  .SDRAM_D(SDRAM_D)
 );
 
 wire [6:0]  HEX0_D;

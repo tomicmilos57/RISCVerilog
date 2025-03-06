@@ -6,7 +6,20 @@ module memory_top(
   input [2:0]    i_bhw,
   input          i_write_notread,
   output [31:0]  o_bus_data,
-  output         o_bus_DV
+  output         o_bus_DV,
+  output wire SDRAM_B0,
+  output wire SDRAM_B1,
+  output wire SDRAM_DQMH,
+  output wire SDRAM_DQML,
+  output wire SDRAM_WE,
+  output wire SDRAM_CAS,
+  output wire SDRAM_RAS,
+  output wire SDRAM_CS,
+  output wire SDRAM_CLK,
+  output wire SDRAM_CKE,
+  output wire [9:0] led,
+  output wire [11:0] SDRAM_A,
+  inout wire [15:0] SDRAM_D
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -14,43 +27,51 @@ module memory_top(
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 // input registres
-
-reg [7:0]  r_mdr [3:0]; // Memory Data Register
-reg [31:0]   r_mar; // Memory Address Register
+reg [7:0]   r_mdr [3:0]; // Memory Data Register
+reg [31:0]  r_mar; // Memory Address Register
 reg [2:0]   r_bhw; // Byte-Half-Word
 reg         r_write; // Write/Not_Read
 reg         r_send = 1'b0;
 reg [1:0]   r_counter;
 
-wire [31:0]   w_mar; // Memory Address Register
-wire         w_write; // Write/Not_Read
+wire [31:0] w_mar; // Memory Address Register
+wire        w_write; // Write/Not_Read
 
 assign o_bus_data = {r_mdr[3], r_mdr[2], r_mdr[1], r_mdr[0]};
-assign o_bus_DV = r_send;
-assign w_mar = r_mar;
-assign w_write = r_write;
+assign o_bus_DV   = r_send;
+assign w_mar      = r_mar;
+assign w_write    = r_write;
+
+
+// SDRAM wires and regs
+wire w_sdram_DV;
+wire w_sdram_receive;
+wire [7:0] w_sdram_data_byte;
+
 
 // Bootloader wires and regs
 wire w_bootloader_DV;
 wire w_bootloader_receive;
 wire [7:0] w_bootloader_data_byte;
 
+
+// Global wires and regs
 wire [7:0] w_read_data; //This register holds data read from submodule that is currently selected
-assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte
-                      : 8'h00;
+assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
+                     (w_sdram_receive & w_sdram_DV) ? w_sdram_data_byte :
+                     8'h00;
 
 wire w_global_receive;
 assign w_global_receive = w_bootloader_receive; // All submodule receive signals OR-ed
 
-// submodule interface wires and regs
-wire[7:0]    w_data_to_submodule; // global data to submodule
+wire[7:0] w_data_to_submodule; // global data to submodule
 assign w_data_to_submodule = (r_bhw == 3'b100) ? r_mdr[0] :
                              (r_bhw == 3'b011) ? r_mdr[1] :
                              (r_bhw == 3'b010) ? r_mdr[2] :
                              (r_bhw == 3'b001) ? r_mdr[3] :
                              8'h00;
 
-reg    r_request;  // global request to submodule
+reg r_request;  // global request to submodule
 
 reg status = 1'b0;
 localparam integer WAITING = 1'b0;
@@ -64,7 +85,9 @@ localparam integer WAITINGFORRESPONSE = 1'b1;
 //  Memory Map
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-memory_map memory_map(.i_address(w_mar), .o_bootloader_DV(w_bootloader_DV));
+memory_map memory_map(.i_address(w_mar),
+  .o_bootloader_DV(w_bootloader_DV),
+  .o_sdram_DV(w_sdram_DV));
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Cache/Bootloader Fast Memory
@@ -74,8 +97,34 @@ cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
   .i_data(w_data_to_submodule), .i_address(w_mar[11:0]),
   .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
   .o_data_DV(w_bootloader_receive));
-// block_ram #(.DATA_WIDTH(8), .ADDR_WIDTH(10)) BRAM(.clk(i_clk), .we(w_write),
-//   .addr(w_mar[9:0]), .din(w_data_to_submodule), .dout(w_bootloader_data_byte));
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  Cache/Bootloader Fast Memory
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+SDRAM sdram(
+  .clk(i_clk),
+  .data(w_data_to_submodule),
+  .address(w_mar[22:0]),
+  .wren(w_write & w_sdram_DV & r_request),
+  .request(w_sdram_DV & r_request),
+  .out(w_sdram_data_byte),
+  .done(w_sdram_receive),
+  .SDRAM_B0(SDRAM_B0),
+  .SDRAM_B1(SDRAM_B1),
+  .SDRAM_DQMH(SDRAM_DQMH),
+  .SDRAM_DQML(SDRAM_DQML),
+  .SDRAM_WE(SDRAM_WE),
+  .SDRAM_CAS(SDRAM_CAS),
+  .SDRAM_RAS(SDRAM_RAS),
+  .SDRAM_CS(SDRAM_CS),
+  .SDRAM_CLK(SDRAM_CLK),
+  .SDRAM_CKE(SDRAM_CKE),
+  .led(led),
+  .SDRAM_A(SDRAM_A),
+  .SDRAM_D(SDRAM_D)
+);
+
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

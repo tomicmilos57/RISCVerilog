@@ -13,3 +13,14 @@ src/CPU/register_file.v
 src/Memory/memory_top.v
 src/Memory/memory_map.v
 src/Memory/cache8KB.v
+src/SDRAM/ComparatorX.v
+src/SDRAM/initSDRAM.v
+src/SDRAM/ReadSDRAM.v
+src/SDRAM/RegisterX.v
+src/SDRAM/SDRAM.v
+src/SDRAM/SDRAMRefresh.v
+src/SDRAM/WriteSDRAM.v
+src/SDRAM/ZEROEXT.v
+src/SDRAM/ConstantX.v
+src/SDRAM/InstantRisingEdge.v
+src/SDRAM/DC2.v
