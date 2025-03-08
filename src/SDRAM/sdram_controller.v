@@ -33,19 +33,19 @@ reg [7:0] r_data;
 assign o_SDRAM_CKE = 1'b1;
 assign o_SDRAM_CLK = i_clk;
 
-reg [35:0] r_out;
-assign o_SDRAM_CS = r_out[0];
-assign o_SDRAM_RAS = r_out[1];
-assign o_SDRAM_CAS = r_out[2];
-assign o_SDRAM_WE = r_out[3];
-assign o_SDRAM_DQML = r_out[4];
-assign o_SDRAM_DQMH = r_out[5];
-assign o_SDRAM_B0 = r_out[6];
-assign o_SDRAM_B1 = r_out[7];
-assign o_SDRAM_ADR[11:0] = r_out[35:24];
+reg [35:0] out;
+assign o_SDRAM_CS = out[0];
+assign o_SDRAM_RAS = out[1];
+assign o_SDRAM_CAS = out[2];
+assign o_SDRAM_WE = out[3];
+assign o_SDRAM_DQML = out[4];
+assign o_SDRAM_DQMH = out[5];
+assign o_SDRAM_B0 = out[6];
+assign o_SDRAM_B1 = out[7];
+assign o_SDRAM_ADR[11:0] = out[35:24];
 
 reg r_drive_sdram_data = 1'b0;
-assign o_SDRAM_DATA[15:0] = r_drive_sdram_data? r_out[23:8] : 16'bzzzzzzzzzzzzzzzz;
+assign io_SDRAM_DATA[15:0] = r_drive_sdram_data? out[23:8] : 16'bzzzzzzzzzzzzzzzz;
 
 // Instructions
 wire [35:0] CONST_NOP =    36'b000000000000000000000000000000111110;
@@ -57,6 +57,23 @@ wire [35:0] CONST_READ =   {4'b1111, r_address[7:0], {16{1'b0}}, r_address[20], 
 wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], {8{1'b0}}, r_data[7:0],
                             r_address[20], r_address[21], 6'b000010};
 wire [35:0] CONST_REFRESH = 36'b000000000000000000000000000000111000;
+
+// CHARGING
+reg [31:0] charging_cnt;
+
+// INIT WIRES
+reg [31:0] init_sub_state = 32'b0;
+
+// READ
+reg [31:0] read_sub_state = 32'b0;
+
+// WRITE
+reg [31:0] write_sub_state = 32'b0;
+
+// REFRESH
+reg [31:0] refresh_sub_state = 32'b0;
+reg [31:0] refresh_cnt = 32'b0;
+wire refresh = refresh_cnt < 10'b1010111100;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
@@ -166,7 +183,7 @@ always @(posedge i_clk) begin
 
         32'd1, 32'd2, 32'd3, 32'd5, 32'd6: begin //NOP
           if(read_sub_state == 32'd6) begin //ENDREAD
-            o_data <= io_dDRAM_DATA[7:0];
+            o_data <= io_SDRAM_DATA[7:0];
             o_done <= 1'b1;
             read_sub_state <= 0;
             state <= IDLE;
@@ -247,23 +264,6 @@ always @(posedge i_clk)
     refresh_cnt <= refresh_cnt + 1;
   else if(state == REFRESH)
     refresh_cnt <= 32'b0;
-
-// CHARGING
-reg [31:0] charging_cnt;
-
-// INIT WIRES
-reg [31:0] init_sub_state = 32'b0;
-
-// READ
-reg [31:0] read_sub_state = 32'b0;
-
-// WRITE
-reg [31:0] write_sub_state = 32'b0;
-
-// REFRESH
-reg [31:0] refresh_sub_state = 32'b0;
-reg [31:0] refresh_cnt = 32'b0;
-wire refresh = refresh_cnt < 10'b1010111100;
 
 endmodule
 

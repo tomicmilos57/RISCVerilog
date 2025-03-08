@@ -102,27 +102,26 @@ cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-SDRAM sdram(
-  .clk(i_clk),
-  .data(w_data_to_submodule),
-  .address(w_mar[22:0]),
-  .wren(w_write & w_sdram_DV & r_request),
-  .request(w_sdram_DV & r_request),
-  .out(w_sdram_data_byte),
-  .done(w_sdram_receive),
-  .SDRAM_B0(SDRAM_B0),
-  .SDRAM_B1(SDRAM_B1),
-  .SDRAM_DQMH(SDRAM_DQMH),
-  .SDRAM_DQML(SDRAM_DQML),
-  .SDRAM_WE(SDRAM_WE),
-  .SDRAM_CAS(SDRAM_CAS),
-  .SDRAM_RAS(SDRAM_RAS),
-  .SDRAM_CS(SDRAM_CS),
-  .SDRAM_CLK(SDRAM_CLK),
-  .SDRAM_CKE(SDRAM_CKE),
-  .led(led),
-  .SDRAM_A(SDRAM_A),
-  .SDRAM_D(SDRAM_D)
+sdram_controller sdram(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[22:0]),
+  .i_wren(w_write & w_sdram_DV & r_request),
+  .i_request(w_sdram_DV & r_request),
+  .o_data(w_sdram_data_byte),
+  .o_done(w_sdram_receive),
+  .o_SDRAM_B0(SDRAM_B0),
+  .o_SDRAM_B1(SDRAM_B1),
+  .o_SDRAM_DQMH(SDRAM_DQMH),
+  .o_SDRAM_DQML(SDRAM_DQML),
+  .o_SDRAM_WE(SDRAM_WE),
+  .o_SDRAM_CAS(SDRAM_CAS),
+  .o_SDRAM_RAS(SDRAM_RAS),
+  .o_SDRAM_CS(SDRAM_CS),
+  .o_SDRAM_CLK(SDRAM_CLK),
+  .o_SDRAM_CKE(SDRAM_CKE),
+  .o_SDRAM_ADR(SDRAM_A),
+  .io_SDRAM_DATA(SDRAM_D)
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
