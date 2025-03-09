@@ -6,7 +6,7 @@ module memory_map (
 
 assign o_bootloader_DV = (i_address < 32'h00002000); //8kB
 
-assign o_sdram_DV = (i_address > 32'h10000000); //8kB
+assign o_sdram_DV = (i_address >= 32'h10000000); //8kB
 
 endmodule
 

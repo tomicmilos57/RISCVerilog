@@ -73,14 +73,14 @@ always @(posedge i_clk)begin
     32'd7: begin r_result <= i_A >>> i_B[4:0]; r_load_regfile <= 1'd1; end// SRA
     32'd8: begin r_result <= i_A | i_B; r_load_regfile <= 1'd1; end// OR
     32'd9: begin r_result <= i_A & i_B; r_load_regfile <= 1'd1; end// AND
-    32'd10:begin r_result <= i_A * i_B; r_load_regfile <= 1'd1; end// MUL
-    32'd11:begin r_result <= i_A * i_B; r_load_regfile <= 1'd1; end// MULH
-    32'd12:begin r_result <= i_A * i_B; r_load_regfile <= 1'd1; end// MULHS
-    32'd13:begin r_result <= i_A * i_B; r_load_regfile <= 1'd1; end// MULHU
-    32'd14:begin r_result <= i_A / i_B; r_load_regfile <= 1'd1; end// DIV
-    32'd15:begin r_result <= i_A / i_B; r_load_regfile <= 1'd1; end// DIVU
-    32'd16:begin r_result <= i_A % i_B; r_load_regfile <= 1'd1; end// REM
-    32'd17:begin r_result <= i_A % i_B; r_load_regfile <= 1'd1; end// REMU
+    32'd10:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MUL
+    32'd11:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULH
+    32'd12:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULHS
+    32'd13:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULHU
+    32'd14:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// DIV
+    32'd15:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// DIVU
+    32'd16:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// REM
+    32'd17:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// REMU
     32'd18:begin r_result <= i_A + w_se_immed; r_load_regfile <= 1'd1; end// ADDI
     32'd19: begin               // SLTI
       if($signed(i_A) < $signed(w_se_immed))begin

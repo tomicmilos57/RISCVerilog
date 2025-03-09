@@ -13,3 +13,4 @@ src/Memory/memory_top.v
 src/Memory/memory_map.v
 src/Memory/cache8KB.v
 src/DE0_TOP.v
+src/SDRAM/sdram_controller.v

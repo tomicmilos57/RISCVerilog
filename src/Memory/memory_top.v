@@ -61,7 +61,7 @@ assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_dat
                      8'h00;
 
 wire w_global_receive;
-assign w_global_receive = w_bootloader_receive; // All submodule receive signals OR-ed
+assign w_global_receive = w_bootloader_receive | w_sdram_receive;
 
 wire[7:0] w_data_to_submodule; // global data to submodule
 assign w_data_to_submodule = (r_bhw == 3'b100) ? r_mdr[0] :

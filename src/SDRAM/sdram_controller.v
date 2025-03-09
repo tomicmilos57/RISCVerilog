@@ -58,7 +58,7 @@ wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], {8{1'b0}}, r_data[7:0],
                             r_address[20], r_address[21], 6'b000010};
 wire [35:0] CONST_REFRESH = 36'b000000000000000000000000000000111000;
 
-// CHARGING
+// POWERUP
 reg [31:0] charging_cnt = 32'b0;
 
 // INIT WIRES
@@ -81,7 +81,7 @@ wire refresh = refresh_cnt > 10'b1010111100;
 
 reg [2:0] state = 3'b000;
 
-localparam integer CHARGING = 3'd0;
+localparam integer POWERUP = 3'd0;
 localparam integer INIT = 3'd1;
 localparam integer IDLE = 3'd2;
 localparam integer REFRESH = 3'd3;
@@ -93,9 +93,17 @@ always @(posedge i_clk) begin
   o_done <= 1'b0;
   r_drive_sdram_data = 1'b0;
 
+  if(i_request)begin
+    r_request <= i_request;
+    r_wren <= i_wren;
+    r_address <= i_address;
+    r_data <= i_data;
+  end
+
+
   case(state)
-    CHARGING: begin
-      if(charging_cnt < 32'd10) begin //32'd10000
+    POWERUP: begin
+      if(charging_cnt < 32'd10000) begin
         charging_cnt <= charging_cnt + 1;
         out <= CONST_NOP;
       end
@@ -140,8 +148,14 @@ always @(posedge i_clk) begin
       out <= CONST_NOP;
 
       if(refresh) state <= REFRESH;
-      else if(r_request && r_wren) state <= WRITE;
-      else if(r_request && !r_wren) state <= READ;
+      else if(r_request && r_wren) begin
+        r_request <= 1'b0;
+        state <= WRITE;
+      end
+      else if(r_request && !r_wren) begin
+        r_request <= 1'b0;
+        state <= READ;
+      end
 
     end
 
@@ -241,23 +255,6 @@ always @(posedge i_clk) begin
   endcase
 
 
-end
-
-
-always @(posedge i_clk) begin
-  if(i_request)begin
-    r_request <= i_request;
-    r_wren <= i_wren;
-    r_address <= i_address;
-    r_data <= i_data;
-  end
-
-  if(o_done)begin
-    r_request <= 1'b0;
-    r_wren <= 1'b0;
-    r_address <= 23'b0;
-    r_data <= 8'b0;
-  end
 end
 
 always @(posedge i_clk)

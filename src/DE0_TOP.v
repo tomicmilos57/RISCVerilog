@@ -222,7 +222,19 @@ module DE0_TOP (CLOCK_50,
       .i_bhw(w_output_bhw),
       .i_write_notread(w_output_write_notread),
       .o_bus_data(w_input_bus_data),
-      .o_bus_DV(w_input_bus_DV)
+      .o_bus_DV(w_input_bus_DV),
+      .SDRAM_B0(DRAM_BA_0),
+      .SDRAM_B1(DRAM_BA_1),
+      .SDRAM_DQMH(DRAM_UDQM),
+      .SDRAM_DQML(DRAM_LDQM),
+      .SDRAM_WE(DRAM_WE_N),
+      .SDRAM_CAS(DRAM_CAS_N),
+      .SDRAM_RAS(DRAM_RAS_N),
+      .SDRAM_CS(DRAM_CS_N),
+      .SDRAM_CLK(DRAM_CLK),
+      .SDRAM_CKE(DRAM_CKE),
+      .SDRAM_A(DRAM_ADDR[11:0]),
+      .SDRAM_D(DRAM_DQ)
     );
 
     seven_segment_32bit print(
@@ -234,5 +246,5 @@ module DE0_TOP (CLOCK_50,
       .o_hex0(HEX3_D)
     );
 
-endmodule
+    endmodule
 
