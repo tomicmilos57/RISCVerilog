@@ -27,13 +27,13 @@ module sdram_controller(
 
 reg r_request = 1'b0;
 reg r_wren = 1'b0;
-reg [22:0] r_address;
-reg [7:0] r_data;
+reg [22:0] r_address = 23'b0;
+reg [7:0] r_data = 8'b0;
 
 assign o_SDRAM_CKE = 1'b1;
 assign o_SDRAM_CLK = i_clk;
 
-reg [35:0] out;
+reg [35:0] out = 36'b0;
 assign o_SDRAM_CS = out[0];
 assign o_SDRAM_RAS = out[1];
 assign o_SDRAM_CAS = out[2];
@@ -59,7 +59,7 @@ wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], {8{1'b0}}, r_data[7:0],
 wire [35:0] CONST_REFRESH = 36'b000000000000000000000000000000111000;
 
 // CHARGING
-reg [31:0] charging_cnt;
+reg [31:0] charging_cnt = 32'b0;
 
 // INIT WIRES
 reg [31:0] init_sub_state = 32'b0;
@@ -73,13 +73,13 @@ reg [31:0] write_sub_state = 32'b0;
 // REFRESH
 reg [31:0] refresh_sub_state = 32'b0;
 reg [31:0] refresh_cnt = 32'b0;
-wire refresh = refresh_cnt < 10'b1010111100;
+wire refresh = refresh_cnt > 10'b1010111100;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg [2:0] state;
+reg [2:0] state = 3'b000;
 
 localparam integer CHARGING = 3'd0;
 localparam integer INIT = 3'd1;
@@ -95,7 +95,7 @@ always @(posedge i_clk) begin
 
   case(state)
     CHARGING: begin
-      if(charging_cnt < 32'd10000) begin
+      if(charging_cnt < 32'd10) begin //32'd10000
         charging_cnt <= charging_cnt + 1;
         out <= CONST_NOP;
       end
@@ -128,6 +128,7 @@ always @(posedge i_clk) begin
 
         32'd14: begin //ENDINIT
           init_sub_state <= 0;
+          out <= CONST_NOP;
           state <= IDLE;
         end
 
@@ -159,12 +160,12 @@ always @(posedge i_clk) begin
           end
         end
 
-        32'd11: begin //LDMREG
+        32'd2: begin //LDMREG
           out <= CONST_LDMREG;
           refresh_sub_state <= refresh_sub_state + 1;
         end
 
-        32'd4: begin //REFRESH
+        32'd7: begin //REFRESH
           out <= CONST_REFRESH;
           refresh_sub_state <= refresh_sub_state + 1;
         end

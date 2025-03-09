@@ -17,7 +17,6 @@ module memory_top(
   output wire SDRAM_CS,
   output wire SDRAM_CLK,
   output wire SDRAM_CKE,
-  output wire [9:0] led,
   output wire [11:0] SDRAM_A,
   inout wire [15:0] SDRAM_D
 );

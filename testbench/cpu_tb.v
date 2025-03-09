@@ -35,7 +35,6 @@ wire SDRAM_RAS;
 wire SDRAM_CS;
 wire SDRAM_CLK;
 wire SDRAM_CKE;
-wire [9:0] led;
 wire [11:0] SDRAM_A;
 wire [15:0] SDRAM_D;
 
@@ -58,7 +57,6 @@ memory_top memory(
   .SDRAM_CS(SDRAM_CS),
   .SDRAM_CLK(SDRAM_CLK),
   .SDRAM_CKE(SDRAM_CKE),
-  .led(led),
   .SDRAM_A(SDRAM_A),
   .SDRAM_D(SDRAM_D)
 );
