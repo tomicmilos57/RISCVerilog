@@ -56,7 +56,6 @@ wire [35:0] CONST_ACTIVE = {r_address[19:8], {16{1'b0}}, r_address[20], r_addres
 wire [35:0] CONST_READ =   {4'b1111, r_address[7:0], {16{1'b0}}, r_address[20], r_address[21], 6'b001010};
 wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], r_data[7:0], r_data[7:0],
                             r_address[20], r_address[21], 6'b000010};
-wire [35:0] CONST_REFRESH = 36'b000000000000000000000000000000111000;
 
 // POWERUP
 reg [31:0] charging_cnt = 32'b0;
@@ -103,7 +102,7 @@ always @(posedge i_clk) begin
 
   case(state)
     POWERUP: begin
-      if(charging_cnt < 32'd20000) begin
+      if(charging_cnt < 32'd10) begin
         charging_cnt <= charging_cnt + 1;
         out <= CONST_NOP;
       end
@@ -163,7 +162,7 @@ always @(posedge i_clk) begin
 
       case(refresh_sub_state)
         32'd0, 32'd1, 32'd3, 32'd4, 32'd5, 32'd6, 32'd8, 32'd9, 32'd10: begin //NOP
-          if(refresh_sub_state == 32'd10) begin //ENDREAD
+          if(refresh_sub_state == 32'd10) begin //ENDREFRESH
             refresh_sub_state <= 0;
             state <= IDLE;
             out <= CONST_NOP;
@@ -180,7 +179,7 @@ always @(posedge i_clk) begin
         end
 
         32'd7: begin //REFRESH
-          out <= CONST_REFRESH;
+          out <= CONST_RFRSH;
           refresh_sub_state <= refresh_sub_state + 1;
         end
 

@@ -36,7 +36,9 @@ reg [1:0]   r_counter;
 wire [31:0] w_mar; // Memory Address Register
 wire        w_write; // Write/Not_Read
 
-assign o_bus_data = {r_mdr[3], r_mdr[2], r_mdr[1], r_mdr[0]};
+
+reg [7:0]   r_mdr_out [3:0]; // Memory Data Register
+assign o_bus_data = {r_mdr_out[3], r_mdr_out[2], r_mdr_out[1], r_mdr_out[0]};
 assign o_bus_DV   = r_send;
 assign w_mar      = r_mar;
 assign w_write    = r_write;
@@ -131,10 +133,28 @@ always @(posedge i_clk) begin
   r_request <= 1'b0;
   r_send <= 1'b0;
   if(status == WAITING && i_bus_DV) begin
-    r_mdr[0] <= i_bus_data[7:0];
-    r_mdr[1] <= i_bus_data[15:8];
-    r_mdr[2] <= i_bus_data[23:16];
-    r_mdr[3] <= i_bus_data[31:24];
+    if(i_bhw == 3'b100)begin
+      r_mdr[0] <= i_bus_data[7:0];
+      r_mdr[1] <= i_bus_data[15:8];
+      r_mdr[2] <= i_bus_data[23:16];
+      r_mdr[3] <= i_bus_data[31:24];
+    end
+    if(i_bhw == 3'b010)begin
+      r_mdr[0] <= 8'b0;
+      r_mdr[1] <= 8'b0;
+      r_mdr[2] <= i_bus_data[7:0];
+      r_mdr[3] <= i_bus_data[15:8];
+    end
+    if(i_bhw == 3'b001)begin
+      r_mdr[0] <= 8'b0;
+      r_mdr[1] <= 8'b0;
+      r_mdr[2] <= 8'b0;
+      r_mdr[3] <= i_bus_data[7:0];
+    end
+    r_mdr_out[0] = 8'b0;
+    r_mdr_out[0] = 8'b0;
+    r_mdr_out[0] = 8'b0;
+    r_mdr_out[0] = 8'b0;
     r_mar <= i_bus_address;
     r_bhw <= i_bhw;
     r_write <= i_write_notread;
@@ -151,7 +171,7 @@ always @(posedge i_clk) begin
       r_counter <= r_counter + 1;
       sub_status <= TOSEND;
       r_bhw = r_bhw - 1; // It is important that this is Blocking assignment
-      if(!w_write) r_mdr[r_counter] <= w_read_data;
+      if(!w_write) r_mdr_out[r_counter] <= w_read_data;
       if(r_bhw == 3'b000) begin
         r_send <= 1'b1;
         status <= WAITING;

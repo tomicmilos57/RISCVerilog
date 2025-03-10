@@ -42,6 +42,30 @@ wire SDRAM_CKE;
 wire [11:0] SDRAM_A;
 wire [15:0] SDRAM_D;
 
+// always @(posedge i_clk) begin
+
+//   case({SDRAM_CS, SDRAM_RAS, SDRAM_CAS, SDRAM_WE})
+//     4'b0111: $display("NOP: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//     4'b0011: $display("ACTIVE: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//     4'b0101: $display("READ: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//     4'b0100: $display("WRITE: adr %b, B0B1DQMHDQMLCKE %b, data %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE}, SDRAM_D);
+//     4'b0010: $display("PRECHARGE: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//     4'b0001: $display("REFRESH: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//     4'b0000: $display("LDMREG: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+
+//     default: $display("ERROR: adr %b, B0B1DQMHDQMLCKE %b", SDRAM_A,
+//       {SDRAM_B0, SDRAM_B1, SDRAM_DQMH, SDRAM_DQML, SDRAM_CKE});
+//   endcase
+
+// end
+
 memory_top memory(
   .i_clk(i_clk),
   .i_bus_data(w_output_bus_data),
