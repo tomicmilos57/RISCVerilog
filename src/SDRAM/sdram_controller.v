@@ -196,17 +196,8 @@ always @(posedge i_clk) begin
         end
 
         32'd1, 32'd2, 32'd3, 32'd5, 32'd6: begin //NOP
-          if(read_sub_state == 32'd6) begin //ENDREAD
-            o_data <= io_SDRAM_DATA[7:0];
-            o_done <= 1'b1;
-            read_sub_state <= 0;
-            state <= IDLE;
-            out <= CONST_NOP;
-          end
-          else begin
-            out <= CONST_NOP;
-            read_sub_state <= read_sub_state + 1;
-          end
+          out <= CONST_NOP;
+          read_sub_state <= read_sub_state + 1;
         end
 
         32'd4: begin //READ
@@ -214,6 +205,13 @@ always @(posedge i_clk) begin
           read_sub_state <= read_sub_state + 1;
         end
 
+        32'd7: begin
+            o_data <= io_SDRAM_DATA[7:0];
+            o_done <= 1'b1;
+            read_sub_state <= 0;
+            state <= IDLE;
+            out <= CONST_NOP;
+        end
         default:;
       endcase
     end
