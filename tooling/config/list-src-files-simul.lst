@@ -3,6 +3,8 @@ src/my_memory/mainMemory.v
 src/modules/risingEdge.v
 src/modules/seven_segment_digit_interface.v
 src/modules/seven_segment_32bit.v
+src/modules/mux_1024to32.v
+src/modules/mux_4to1.v
 src/CPU/CPU_top.v
 src/CPU/alu.v
 src/CPU/control_unit.v

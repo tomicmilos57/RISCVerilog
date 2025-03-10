@@ -12,7 +12,9 @@ wire [31:0] w_output_bus_address;
 wire w_output_bus_DV;
 wire [2:0] w_output_bhw;
 wire w_output_write_notread;
-wire [31:0] w_reg5;
+wire [1023:0] w_regs;
+wire [31:0] w_reg;
+wire w_state;
 
 CPU_top cpu(
   .i_clk(i_clk),
@@ -23,8 +25,10 @@ CPU_top cpu(
   .o_bus_DV(w_output_bus_DV),
   .o_bhw(w_output_bhw),
   .o_write_notread(w_output_write_notread),
-  .o_reg5(w_reg5)
+  .o_regs(w_regs),
+  .o_state(w_state)
 );
+
 wire SDRAM_B0;
 wire SDRAM_B1;
 wire SDRAM_DQMH;
@@ -69,27 +73,22 @@ wire [6:0]  HEX2_D;
 wire        HEX2_DP;
 wire [6:0]  HEX3_D;
 wire        HEX3_DP;
+reg [9:0]   SW = 1;
 
+mux_1024to32 mux(
+  .data_in(w_regs),
+  .sel({SW[4], SW[3], SW[2], SW[1], SW[0]}),
+  .data_out(w_reg)
+);
 
 seven_segment_32bit print(
-  .i_data(w_reg5),
-  .i_mode(1'b0),
+  .i_data(w_reg),
+  .i_mode(SW[9]),
   .o_hex3(HEX0_D),
   .o_hex2(HEX1_D),
   .o_hex1(HEX2_D),
   .o_hex0(HEX3_D)
 );
-
-// mainMemory memory(
-//   .request(w_output_bus_DV),
-//   .bhw(w_output_bhw),
-//   .WR_nRD(w_output_write_notread),
-//   .ADR(w_output_bus_address),
-//   .DATA(w_output_bus_data),
-//   .DATAOUT(w_input_bus_data),
-//   .send(w_input_bus_DV),
-//   .CLK(i_clk)
-// );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic

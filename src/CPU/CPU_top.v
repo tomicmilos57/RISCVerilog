@@ -7,21 +7,27 @@ module CPU_top(
   output        o_bus_DV,
   output [2:0]  o_bhw,
   output        o_write_notread,
-  output [31:0] o_reg5
+  output [1023:0] o_regs,
+  output o_state,
+  output [31:0] o_PC,
+  output [31:0] o_IR
 );
 
 //INSTRUCTION REGISTER
 wire [31:0] w_IR;
+assign o_IR = w_IR;
 wire [31:0] w_instruction;
 wire w_fetch_over;
 
 //PROGRAM COUNTER
 wire [31:0] w_PC;
+assign o_PC = w_PC;
 wire [31:0] w_jump_address;
 wire w_jump_DV;
 
 //STATE MACHINE
 wire w_state;
+assign o_state = w_state;
 wire w_load_PC;
 wire w_start_fetch;
 
@@ -63,9 +69,6 @@ wire [31:0] w_input_regfile = (w_alu_exec) ? w_ALU_out :
 wire w_load_reg_file = w_alu_exec | w_loaded_value_from_memory_DV;
 wire [31:0] w_registerout1;
 wire [31:0] w_registerout2;
-wire [31:0] w_reg5;
-
-assign o_reg5 = w_reg5;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Instruction Register
@@ -102,7 +105,7 @@ control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over | w_ld_st_finnished),
 
 register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
   .i_load(w_load_reg_file), .o_regout1(w_registerout1), .o_regout2(w_registerout2),
-  .o_reg5(w_reg5));
+  .o_regs(o_regs));
 
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

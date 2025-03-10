@@ -187,6 +187,7 @@ module DE0_TOP (CLOCK_50,
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
     //  REG/WIRE declarations
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
     wire i_clk = CLOCK_50;
     wire [31:0] w_input_bus_data;
     wire w_input_bus_DV;
@@ -195,8 +196,11 @@ module DE0_TOP (CLOCK_50,
     wire w_output_bus_DV;
     wire [2:0] w_output_bhw;
     wire w_output_write_notread;
-    wire [31:0] w_reg5;
-
+    wire [1023:0] w_regs;
+    wire [31:0] w_reg;
+    wire w_state;
+    wire [31:0] w_PC;
+    wire [31:0] w_IR;
 
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
     //  Structural coding
@@ -211,7 +215,10 @@ module DE0_TOP (CLOCK_50,
       .o_bus_DV(w_output_bus_DV),
       .o_bhw(w_output_bhw),
       .o_write_notread(w_output_write_notread),
-      .o_reg5(w_reg5)
+      .o_regs(w_regs),
+      .o_state(w_state),
+      .o_PC(w_PC),
+      .o_IR(w_IR)
     );
 
     memory_top memory(
@@ -225,8 +232,8 @@ module DE0_TOP (CLOCK_50,
       .o_bus_DV(w_input_bus_DV),
       .SDRAM_B0(DRAM_BA_0),
       .SDRAM_B1(DRAM_BA_1),
-      .SDRAM_DQMH(DRAM_UDQM),
-      .SDRAM_DQML(DRAM_LDQM),
+      .SDRAM_DQMH(),
+      .SDRAM_DQML(),
       .SDRAM_WE(DRAM_WE_N),
       .SDRAM_CAS(DRAM_CAS_N),
       .SDRAM_RAS(DRAM_RAS_N),
@@ -236,15 +243,42 @@ module DE0_TOP (CLOCK_50,
       .SDRAM_A(DRAM_ADDR[11:0]),
       .SDRAM_D(DRAM_DQ)
     );
+    assign DRAM_UDQM = 0;
+    assign DRAM_LDQM = 0;
 
+    mux_1024to32 regs_mux(
+      .data_in(w_regs),
+      .sel({SW[4], SW[3], SW[2], SW[1], SW[0]}),
+      .data_out(w_reg)
+    );
+
+    wire [31:0] w_mux_print;
+    mux_4to1 print_mux(
+      .data_in0(w_PC),
+      .data_in1(w_IR),
+      .data_in2(w_IR),
+      .data_in3(w_IR),
+      .sel({SW[1], SW[0]}),
+      .data_out(w_mux_print)
+    );
+
+    wire [31:0] w_print = SW[8] ? w_mux_print: w_reg;
     seven_segment_32bit print(
-      .i_data(w_reg5),
-      .i_mode(1'b0),
+      .i_data(w_print),
+      .i_mode(SW[9]),
       .o_hex3(HEX0_D),
       .o_hex2(HEX1_D),
       .o_hex1(HEX2_D),
       .o_hex0(HEX3_D)
     );
+
+    assign LEDG[0] = w_state == 1'b0;
+    assign LEDG[1] = w_state == 1'b1;
+
+    assign HEX0_DP = 1'b1;
+    assign HEX1_DP = 1'b1;
+    assign HEX2_DP = 1'b1;
+    assign HEX3_DP = 1'b1;
 
     endmodule
 

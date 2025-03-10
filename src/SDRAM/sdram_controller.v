@@ -54,7 +54,7 @@ wire [35:0] CONST_RFRSH =  36'b000000000000000000000000000000111000;
 wire [35:0] CONST_LDMREG = 36'b000000100000000000000000000000110000;
 wire [35:0] CONST_ACTIVE = {r_address[19:8], {16{1'b0}}, r_address[20], r_address[21], 6'b001100};
 wire [35:0] CONST_READ =   {4'b1111, r_address[7:0], {16{1'b0}}, r_address[20], r_address[21], 6'b001010};
-wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], {8{1'b0}}, r_data[7:0],
+wire [35:0] CONST_WRITE =  {4'b1111, r_address[7:0], r_data[7:0], r_data[7:0],
                             r_address[20], r_address[21], 6'b000010};
 wire [35:0] CONST_REFRESH = 36'b000000000000000000000000000000111000;
 
@@ -103,7 +103,7 @@ always @(posedge i_clk) begin
 
   case(state)
     POWERUP: begin
-      if(charging_cnt < 32'd10000) begin
+      if(charging_cnt < 32'd20000) begin
         charging_cnt <= charging_cnt + 1;
         out <= CONST_NOP;
       end
@@ -233,8 +233,10 @@ always @(posedge i_clk) begin
             write_sub_state <= 0;
             state <= IDLE;
             out <= CONST_NOP;
+            r_drive_sdram_data <= 1'b1;
           end
           else begin
+            r_drive_sdram_data <= 1'b1;
             out <= CONST_NOP;
             write_sub_state <= write_sub_state + 1;
           end
