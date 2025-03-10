@@ -102,7 +102,7 @@ always @(posedge i_clk) begin
 
   case(state)
     POWERUP: begin
-      if(charging_cnt < 32'd10) begin
+      if(charging_cnt < 32'd10000) begin
         charging_cnt <= charging_cnt + 1;
         out <= CONST_NOP;
       end

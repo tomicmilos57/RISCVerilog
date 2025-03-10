@@ -151,10 +151,10 @@ always @(posedge i_clk) begin
       r_mdr[2] <= 8'b0;
       r_mdr[3] <= i_bus_data[7:0];
     end
-    r_mdr_out[0] = 8'b0;
-    r_mdr_out[0] = 8'b0;
-    r_mdr_out[0] = 8'b0;
-    r_mdr_out[0] = 8'b0;
+    r_mdr_out[0] <= 8'b0;
+    r_mdr_out[0] <= 8'b0;
+    r_mdr_out[0] <= 8'b0;
+    r_mdr_out[0] <= 8'b0;
     r_mar <= i_bus_address;
     r_bhw <= i_bhw;
     r_write <= i_write_notread;
