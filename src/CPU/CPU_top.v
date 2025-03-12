@@ -93,7 +93,8 @@ program_counter m_PC(.i_clk(i_clk), .i_jump_address(w_jump_address), .i_jump_DV(
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 
-control_unit m_State(.i_clk(i_clk), .i_bus_DV(w_fetch_over | w_ld_st_finnished),
+control_unit m_State(
+  .i_clk(i_clk), .i_bus_DV((w_fetch_over & w_instruction != 32'd255) | w_ld_st_finnished),
   .i_instruction(w_instruction), .o_load_PC(w_load_PC),
   .o_state(w_state), .o_start_fetch(w_start_fetch));
 
