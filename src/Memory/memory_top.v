@@ -94,7 +94,7 @@ memory_map memory_map(.i_address(w_mar),
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-cache8KB #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
+cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
   .i_data(w_data_to_submodule), .i_address(w_mar[11:0]),
   .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
   .o_data_DV(w_bootloader_receive));

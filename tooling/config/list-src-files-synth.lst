@@ -13,6 +13,6 @@ src/CPU/program_counter.v
 src/CPU/register_file.v
 src/Memory/memory_top.v
 src/Memory/memory_map.v
-src/Memory/cache8KB.v
+src/Memory/cache_altera.v
 src/DE0_TOP.v
 src/SDRAM/sdram_controller.v

@@ -1,4 +1,4 @@
-module cache8KB #(
+module cache_altera #(
     parameter DATA_WIDTH = 8,  // Width of each memory word
     parameter ADDR_WIDTH = 13   // Depth of memory (2^ADDR_WIDTH locations)
 ) (
@@ -46,11 +46,9 @@ altsyncram altsyncram_component (
 // Set the parameters for the RAM
 defparam altsyncram_component.clock_enable_input_a = "BYPASS";
 defparam altsyncram_component.clock_enable_output_a = "BYPASS";
-defparam altsyncram_component.init_file = "../misc/bootloader.mif";
 defparam altsyncram_component.power_up_uninitialized = "FALSE";
 defparam altsyncram_component.intended_device_family = "Cyclone III";
 defparam altsyncram_component.lpm_type = "altsyncram";
-// defparam altsyncram_component.numwords_a = 8192;
 defparam altsyncram_component.operation_mode = "SINGLE_PORT";
 defparam altsyncram_component.outdata_aclr_a = "NONE";
 defparam altsyncram_component.outdata_reg_a = "CLOCK1";
@@ -76,17 +74,7 @@ reg [1:0] r_counter = 2'b00;
 
 always @(posedge i_clk) begin
   o_data_DV <= 1'b0;
-  case (r_counter)
-    2'b00: if(i_request) r_counter <= r_counter + 1;
-    2'b01: r_counter <= r_counter + 1;
-  2'b10: r_counter <= r_counter + 1;
-  2'b11: begin
-    r_counter <= 2'b00;
-    o_data_DV <= 1'b1;
-  end
-  default:;
-endcase
-
+  if(i_request) o_data_DV <= 1'b1;
 end
 
 endmodule

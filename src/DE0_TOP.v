@@ -232,8 +232,8 @@ module DE0_TOP (CLOCK_50,
       .o_bus_DV(w_input_bus_DV),
       .SDRAM_B0(DRAM_BA_0),
       .SDRAM_B1(DRAM_BA_1),
-      .SDRAM_DQMH(),
-      .SDRAM_DQML(),
+      .SDRAM_DQMH(DRAM_UDQM),
+      .SDRAM_DQML(DRAM_LDQM),
       .SDRAM_WE(DRAM_WE_N),
       .SDRAM_CAS(DRAM_CAS_N),
       .SDRAM_RAS(DRAM_RAS_N),
@@ -243,9 +243,7 @@ module DE0_TOP (CLOCK_50,
       .SDRAM_A(DRAM_ADDR[11:0]),
       .SDRAM_D(DRAM_DQ)
     );
-    assign DRAM_UDQM = 0;
-    assign DRAM_LDQM = 0;
-
+    defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
     mux_1024to32 regs_mux(
       .data_in(w_regs),
       .sel({SW[4], SW[3], SW[2], SW[1], SW[0]}),
