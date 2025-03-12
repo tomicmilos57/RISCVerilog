@@ -18,7 +18,12 @@ module memory_top(
   output wire SDRAM_CLK,
   output wire SDRAM_CKE,
   output wire [11:0] SDRAM_A,
-  inout wire [15:0] SDRAM_D
+  inout wire [15:0] SDRAM_D,
+
+  input [31:0]   i_gpu_address,
+  output [7:0]  o_gpu_data,
+
+  output [31:0] o_hex
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -42,28 +47,43 @@ assign o_bus_data = {r_mdr_out[3], r_mdr_out[2], r_mdr_out[1], r_mdr_out[0]};
 assign o_bus_DV   = r_send;
 assign w_mar      = r_mar;
 assign w_write    = r_write;
-
+// input registres
 
 // SDRAM wires and regs
 wire w_sdram_DV;
 wire w_sdram_receive;
 wire [7:0] w_sdram_data_byte;
+// SDRAM wires and regs
 
 
 // Bootloader wires and regs
 wire w_bootloader_DV;
 wire w_bootloader_receive;
 wire [7:0] w_bootloader_data_byte;
+// Bootloader wires and regs
 
+// GPU wires and regs
+wire w_gpu_DV;
+wire w_gpu_receive;
+wire [7:0] w_gpu_data_byte;
+// GPU wires and regs
+
+// HEX wires and regs
+wire w_hex_DV;
+wire w_hex_receive;
+wire [7:0] w_hex_data_byte;
+// HEX wires and regs
 
 // Global wires and regs
 wire [7:0] w_read_data; //This register holds data read from submodule that is currently selected
 assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
                      (w_sdram_receive & w_sdram_DV) ? w_sdram_data_byte :
+                     (w_gpu_receive & w_gpu_DV) ? w_gpu_data_byte :
+                     (w_hex_receive & w_hex_DV) ? w_hex_data_byte :
                      8'h00;
 
 wire w_global_receive;
-assign w_global_receive = w_bootloader_receive | w_sdram_receive;
+assign w_global_receive = w_bootloader_receive | w_sdram_receive | w_gpu_receive | w_hex_receive;
 
 wire[7:0] w_data_to_submodule; // global data to submodule
 assign w_data_to_submodule = (r_bhw == 3'b100) ? r_mdr[0] :
@@ -86,21 +106,66 @@ localparam integer WAITINGFORRESPONSE = 1'b1;
 //  Memory Map
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-memory_map memory_map(.i_address(w_mar),
+memory_map memory_map(
+  .i_address(w_mar),
   .o_bootloader_DV(w_bootloader_DV),
-  .o_sdram_DV(w_sdram_DV));
+  .o_sdram_DV(w_sdram_DV),
+  .o_gpu_DV(w_gpu_DV),
+  .o_ps2_DV(),
+  .o_gpio_DV(),
+  .o_hex_DV(w_hex_DV)
+);
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(.i_clk(i_clk),
-  .i_data(w_data_to_submodule), .i_address(w_mar[11:0]),
-  .i_write(w_write), .i_request(w_bootloader_DV & r_request), .o_data(w_bootloader_data_byte),
-  .o_data_DV(w_bootloader_receive));
+cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[11:0]),
+  .i_write(w_write),
+  .i_request(w_bootloader_DV & r_request),
+  .o_data(w_bootloader_data_byte),
+  .o_data_DV(w_bootloader_receive)
+);
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-//  Cache/Bootloader Fast Memory
+//  GPU Dual Port Memory
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+cache_altera_dualport #(.DATA_WIDTH(8), .ADDR_WIDTH(14)) gpu(
+  // Port A: Read/Write
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[13:0]),
+  .i_write(w_write),
+  .i_request(w_gpu_DV & r_request),
+  .o_data(w_gpu_data_byte),
+  .o_data_DV(w_gpu_receive),
+
+  // Port B: Read-Only
+  .i_address_b(i_gpu_address),
+  .o_data_b(o_gpu_data)
+);
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  Memory Dedicated For Writing To Hex Display
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+hex_mem hex_mem(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[11:0]),
+  .i_write(w_write),
+  .i_request(w_hex_DV & r_request),
+  .o_data(w_hex_data_byte),
+  .o_data_DV(w_hex_receive),
+  .o_hex_display(o_hex)
+);
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  SDRAM Controller
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
 sdram_controller sdram(

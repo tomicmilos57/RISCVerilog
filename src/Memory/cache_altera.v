@@ -61,13 +61,6 @@ defparam altsyncram_component.width_b = DATA_WIDTH;
 defparam altsyncram_component.width_byteena_a = 1;
 
 
-
-// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-//  Combinational Logic
-// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-
-reg [1:0] r_counter = 2'b00;
-
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
