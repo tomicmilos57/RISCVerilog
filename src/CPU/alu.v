@@ -39,6 +39,18 @@ assign o_jump_address = r_address;
 reg r_load_regfile = 1'd0;
 assign o_load_regfile = r_load_regfile;
 
+//Module wires
+reg [3:0] r_pipeline;
+wire [63:0] w_mul_s_result;
+wire [63:0] w_mul_u_result;
+wire [127:0] w_mul_hsu_128_result;
+wire [63:0] w_mul_hsu_result = w_mul_hsu_128_result[127:64];
+
+wire [31:0] w_div_s_result;
+wire [31:0] w_div_u_result;
+wire [31:0] w_rem_s_result;
+wire [31:0] w_rem_u_result;
+
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -73,14 +85,70 @@ always @(posedge i_clk)begin
     32'd7: begin r_result <= i_A >>> i_B[4:0]; r_load_regfile <= 1'd1; end// SRA
     32'd8: begin r_result <= i_A | i_B; r_load_regfile <= 1'd1; end// OR
     32'd9: begin r_result <= i_A & i_B; r_load_regfile <= 1'd1; end// AND
-    32'd10:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MUL
-    32'd11:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULH
-    32'd12:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULHS
-    32'd13:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// MULHU
-    32'd14:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// DIV
-    32'd15:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// DIVU
-    32'd16:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// REM
-    32'd17:begin r_result <= i_A + i_B; r_load_regfile <= 1'd1; end// REMU
+    32'd10:begin
+      r_result <= w_mul_s_result[31:0];
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// MUL
+    32'd11:begin
+      r_result <= w_mul_s_result[63:32];
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// MULH
+    32'd12:begin
+      r_result <= w_mul_hsu_result[63:32];
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// MULHS
+    32'd13:begin
+      r_result <= w_mul_u_result[63:32];
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// MULHU
+    32'd14:begin
+      r_result <= w_div_s_result;
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// DIV
+    32'd15:begin
+      r_result <= w_div_u_result;
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// DIVU
+    32'd16:begin
+      r_result <= w_rem_s_result;
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// REM
+    32'd17:begin
+      r_result <= w_rem_u_result;
+      if(r_pipeline == 4'd15) begin
+        r_load_regfile <= 1'd1;
+        r_pipeline <= 4'b0;
+      end
+      else r_pipeline <= r_pipeline + 1;
+    end// REMU
     32'd18:begin r_result <= i_A + w_se_immed; r_load_regfile <= 1'd1; end// ADDI
     32'd19: begin               // SLTI
       if($signed(i_A) < $signed(w_se_immed))begin
@@ -167,5 +235,82 @@ always @(posedge i_clk)begin
     default: ;
   endcase
 end
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  Module Instantiation
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+localparam LPM_WIDTHA = 32;
+localparam LPM_WIDTHB = 32;
+localparam LPM_WIDTHP = 64;
+localparam LPM_PIPELINE = 15;
+
+lpm_mult #(
+  .lpm_widtha(LPM_WIDTHA),
+  .lpm_widthb(LPM_WIDTHB),
+  .lpm_pipeline(LPM_PIPELINE),
+  .lpm_widthp(LPM_WIDTHP),
+  .lpm_representation("SIGNED")
+) mul_s (
+  .clock(i_clk),
+  .dataa(i_A),
+  .datab(i_B),
+  .result(w_mul_s_result)
+);
+// ((s128) rs1.s64 * (u128) rs2.u64) >> 64
+lpm_mult #(
+  .lpm_widtha(64),
+  .lpm_widthb(64),
+  .lpm_pipeline(LPM_PIPELINE),
+  .lpm_widthp(128),
+  .lpm_representation("SIGNED")
+) mul_s128 (
+  .clock(i_clk),
+  .dataa({{32{i_A[31]}}, i_A}),
+  .datab({32'b0, i_B}),
+  .result(w_mul_hsu_128_result)
+);
+
+lpm_mult #(
+  .lpm_widtha(LPM_WIDTHA),
+  .lpm_widthb(LPM_WIDTHB),
+  .lpm_pipeline(LPM_PIPELINE),
+  .lpm_widthp(LPM_WIDTHP),
+  .lpm_representation("UNSIGNED")
+) mul_u (
+  .clock(i_clk),
+  .dataa(i_A),
+  .datab(i_B),
+  .result(w_mul_u_result)
+);
+
+lpm_divide #(
+  .lpm_widthn(LPM_WIDTHA),
+  .lpm_widthd(LPM_WIDTHB),
+  .lpm_pipeline(LPM_PIPELINE),
+  .lpm_drepresentation("SIGNED"),
+  .lpm_nrepresentation("SIGNED")
+) div_s (
+  .clock(i_clk),
+  .numer(i_A),
+  .denom(i_B),
+  .quotient(w_div_s_result),
+  .remain(w_rem_s_result)
+);
+
+lpm_divide #(
+  .lpm_widthn(LPM_WIDTHA),
+  .lpm_widthd(LPM_WIDTHB),
+  .lpm_pipeline(LPM_PIPELINE),
+  .lpm_drepresentation("UNSIGNED"),
+  .lpm_nrepresentation("UNSIGNED")
+) div_u (
+  .clock(i_clk),
+  .numer(i_A),
+  .denom(i_B),
+  .quotient(w_div_u_result),
+  .remain(w_rem_u_result)
+);
+
 endmodule
 

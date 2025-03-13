@@ -157,6 +157,7 @@ simul_all: simul_lib simul_cmp simul_run
 simul_lib_altera_mf:
 	@echo "$(SIMUL_TAG) Compiling Altera MF library."
 	$(SIMUL_TOOL_VLIB) ./altera_mf
+	$(SIMUL_TOOL_VLOG) -work ./altera_mf $(ALTERA_MF_LIB_PATH)/220model.v
 	$(SIMUL_TOOL_VLOG) -work ./altera_mf $(ALTERA_MF_LIB_PATH)/altera_mf.v
 
 simul_lib: simul_lib_altera_mf
