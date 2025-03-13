@@ -24,7 +24,6 @@ wire [4:0] w_select_regout2 = i_IR[24:20];
 
 assign o_regout1 = (w_select_regout1 == 5'd0) ? 32'd0 : regfile[w_select_regout1];
 assign o_regout2 = (w_select_regout2 == 5'd0) ? 32'd0 : regfile[w_select_regout2];
-assign o_reg5 = regfile[5];
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic

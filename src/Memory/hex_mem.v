@@ -10,8 +10,16 @@ module hex_mem (
 );
 
 reg [7:0] mem [0:3];
+
 assign o_data = (i_address < 4) ? mem[i_address] : 8'b0;
 assign o_hex_display = {mem[3], mem[2], mem[1], mem[0]};
+
+initial begin
+    mem[0] = 8'b0;
+    mem[1] = 8'b0;
+    mem[2] = 8'b0;
+    mem[3] = 8'b0;
+end
 
 always @(posedge i_clk) begin
   o_data_DV <= 1'b0;

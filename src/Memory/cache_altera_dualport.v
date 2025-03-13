@@ -64,6 +64,7 @@ defparam altsyncram_component.outdata_aclr_b = "NONE";
 defparam altsyncram_component.outdata_reg_b = "CLOCK1";
 defparam altsyncram_component.read_during_write_mode_port_a = "NEW_DATA_NO_NBE_READ";
 defparam altsyncram_component.read_during_write_mode_port_b = "NEW_DATA_NO_NBE_READ";
+defparam altsyncram_component.read_during_write_mode_mixed_ports = "OLD_DATA";
 defparam altsyncram_component.widthad_a = ADDR_WIDTH;
 defparam altsyncram_component.width_a = DATA_WIDTH;
 defparam altsyncram_component.widthad_b = ADDR_WIDTH;

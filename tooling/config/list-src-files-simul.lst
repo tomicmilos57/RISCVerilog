@@ -15,4 +15,6 @@ src/CPU/register_file.v
 src/Memory/memory_top.v
 src/Memory/memory_map.v
 src/Memory/cache_altera.v
+src/Memory/cache_altera_dualport.v
+src/Memory/hex_mem.v
 src/SDRAM/sdram_controller.v

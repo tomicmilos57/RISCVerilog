@@ -202,6 +202,8 @@ module DE0_TOP (CLOCK_50,
     wire [31:0] w_PC;
     wire [31:0] w_IR;
 
+    wire [31:0] w_hex;
+
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
     //  Structural coding
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -230,6 +232,7 @@ module DE0_TOP (CLOCK_50,
       .i_write_notread(w_output_write_notread),
       .o_bus_data(w_input_bus_data),
       .o_bus_DV(w_input_bus_DV),
+
       .SDRAM_B0(DRAM_BA_0),
       .SDRAM_B1(DRAM_BA_1),
       .SDRAM_DQMH(DRAM_UDQM),
@@ -241,9 +244,17 @@ module DE0_TOP (CLOCK_50,
       .SDRAM_CLK(DRAM_CLK),
       .SDRAM_CKE(DRAM_CKE),
       .SDRAM_A(DRAM_ADDR[11:0]),
-      .SDRAM_D(DRAM_DQ)
+      .SDRAM_D(DRAM_DQ),
+
+      .i_gpu_address(),
+      .o_gpu_data(),
+
+      .o_hex(w_hex)
+
     );
     defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
+    defparam memory.gpu.altsyncram_component.init_file = "../misc/bootloader.mif";
+
     mux_1024to32 regs_mux(
       .data_in(w_regs),
       .sel({SW[4], SW[3], SW[2], SW[1], SW[0]}),
@@ -254,7 +265,7 @@ module DE0_TOP (CLOCK_50,
     mux_4to1 print_mux(
       .data_in0(w_PC),
       .data_in1(w_IR),
-      .data_in2(w_IR),
+      .data_in2(w_hex),
       .data_in3(w_IR),
       .sel({SW[1], SW[0]}),
       .data_out(w_mux_print)

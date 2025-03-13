@@ -145,7 +145,7 @@ cache_altera_dualport #(.DATA_WIDTH(8), .ADDR_WIDTH(14)) gpu(
   .o_data_DV(w_gpu_receive),
 
   // Port B: Read-Only
-  .i_address_b(i_gpu_address),
+  .i_address_b(i_gpu_address[13:0]),
   .o_data_b(o_gpu_data)
 );
 

@@ -44,6 +44,11 @@ wire SDRAM_CKE;
 wire [11:0] SDRAM_A;
 wire [15:0] SDRAM_D;
 
+wire [31:0] w_gpu_address;
+wire [7:0] w_gpu_data;
+
+wire [31:0] w_hex;
+
 memory_top memory(
   .i_clk(i_clk),
   .i_bus_data(w_output_bus_data),
@@ -53,6 +58,7 @@ memory_top memory(
   .i_write_notread(w_output_write_notread),
   .o_bus_data(w_input_bus_data),
   .o_bus_DV(w_input_bus_DV),
+
   .SDRAM_B0(SDRAM_B0),
   .SDRAM_B1(SDRAM_B1),
   .SDRAM_DQMH(SDRAM_DQMH),
@@ -64,7 +70,12 @@ memory_top memory(
   .SDRAM_CLK(SDRAM_CLK),
   .SDRAM_CKE(SDRAM_CKE),
   .SDRAM_A(SDRAM_A),
-  .SDRAM_D(SDRAM_D)
+  .SDRAM_D(SDRAM_D),
+
+  .i_gpu_address(w_gpu_address),
+  .o_gpu_data(w_gpu_data),
+
+  .o_hex(w_hex)
 );
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
 
