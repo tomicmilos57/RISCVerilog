@@ -18,6 +18,8 @@ module cache_altera_dualport #(
 
 // Write enable for Port A
 wire w_wr = i_write & i_request;
+reg [7:0] w_data = 8'b0;
+assign o_data = w_data;
 
 // Instantiate the dual-port RAM
 altsyncram altsyncram_component (
@@ -26,7 +28,6 @@ altsyncram altsyncram_component (
     .clock0(i_clk),             // Clock for Port A
     .data_a(i_data),          // Data input for Port A
     .wren_a(w_wr),            // Write enable for Port A
-    .q_a(o_data),             // Data output for Port A
     .rden_a(1'b1),              // Read enable for Port A (always enabled)
 
     // Port B: Read-Only
@@ -45,7 +46,7 @@ altsyncram altsyncram_component (
     .aclr0(1'b0),               // Unused asynchronous clear for Port A
     .aclr1(1'b0),               // Unused asynchronous clear for Port B
     .byteena_a(1'b1),           // Byte enable for Port A (always enabled)
-    .byteena_b(1'b0),           // Unused byte enable for Port B
+    .byteena_b(1'b1),           // Unused byte enable for Port B
     .addressstall_a(1'b0),      // Unused address stall for Port A
     .addressstall_b(1'b0),      // Unused address stall for Port B
     .eccstatus()                // Unused ECC status

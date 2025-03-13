@@ -37,7 +37,6 @@
 // Revision History :
 // --------------------------------------------------------------------
 //   Ver  :| Author            :| Mod. Date :| Changes Made:
-
 // --------------------------------------------------------------------
 
 module DE0_TOP (CLOCK_50,
@@ -202,6 +201,9 @@ module DE0_TOP (CLOCK_50,
     wire [31:0] w_PC;
     wire [31:0] w_IR;
 
+    wire [31:0] w_gpu_address;
+    wire [7:0] w_gpu_data;
+
     wire [31:0] w_hex;
 
     // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -246,14 +248,27 @@ module DE0_TOP (CLOCK_50,
       .SDRAM_A(DRAM_ADDR[11:0]),
       .SDRAM_D(DRAM_DQ),
 
-      .i_gpu_address(),
-      .o_gpu_data(),
+      .i_gpu_address(w_gpu_address),
+      .o_gpu_data(w_gpu_data),
 
       .o_hex(w_hex)
 
     );
     defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
-    defparam memory.gpu.altsyncram_component.init_file = "../misc/bootloader.mif";
+    defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
+    
+
+    gpu GPU(
+      .i_CLK(i_clk),
+      .i_PixelData(w_gpu_data),
+      .o_HS(VGA_HS),
+      .o_VS(VGA_VS),
+      .o_RdAddr(w_gpu_address),
+      .o_RED(VGA_R),
+      .o_GREEN(VGA_G),
+      .o_BLUE(VGA_B)
+    );
+
 
     mux_1024to32 regs_mux(
       .data_in(w_regs),
