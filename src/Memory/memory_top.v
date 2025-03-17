@@ -23,7 +23,11 @@ module memory_top(
   input [31:0]   i_gpu_address,
   output [7:0]  o_gpu_data,
 
-  output [31:0] o_hex
+  output [31:0] o_hex,
+
+  input [7:0]  i_gpio_data,
+  input [7:0]  i_gpio_control,
+  output [3:0] o_gpio_control
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -74,25 +78,38 @@ wire w_hex_receive;
 wire [7:0] w_hex_data_byte;
 // HEX wires and regs
 
+// GPIO wires and regs
+wire w_gpio_DV;
+wire w_gpio_receive;
+wire [7:0] w_gpio_data_byte;
+// GPIO wires and regs
+
 // Global wires and regs
 wire [7:0] w_read_data; //This register holds data read from submodule that is currently selected
 assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
                      (w_sdram_receive & w_sdram_DV) ? w_sdram_data_byte :
                      (w_gpu_receive & w_gpu_DV) ? w_gpu_data_byte :
                      (w_hex_receive & w_hex_DV) ? w_hex_data_byte :
+                     (w_gpio_receive & w_gpio_DV) ? w_gpio_data_byte :
                      8'h00;
 
 wire w_global_receive;
-assign w_global_receive = w_bootloader_receive | w_sdram_receive | w_gpu_receive | w_hex_receive;
+assign w_global_receive = w_bootloader_receive |
+                          w_sdram_receive |
+                          w_gpu_receive |
+                          w_hex_receive |
+                          w_gpio_receive;
 
-wire[7:0] w_data_to_submodule; // global data to submodule
+// global data to submodule
+wire[7:0] w_data_to_submodule;
 assign w_data_to_submodule = (r_bhw == 3'b100) ? r_mdr[0] :
                              (r_bhw == 3'b011) ? r_mdr[1] :
                              (r_bhw == 3'b010) ? r_mdr[2] :
                              (r_bhw == 3'b001) ? r_mdr[3] :
                              8'h00;
 
-reg r_request;  // global request to submodule
+// global request to submodule
+reg r_request = 1'b0;
 
 reg status = 1'b0;
 localparam integer WAITING = 1'b0;
@@ -112,7 +129,7 @@ memory_map memory_map(
   .o_sdram_DV(w_sdram_DV),
   .o_gpu_DV(w_gpu_DV),
   .o_ps2_DV(),
-  .o_gpio_DV(),
+  .o_gpio_DV(w_gpio_DV),
   .o_hex_DV(w_hex_DV)
 );
 
@@ -161,6 +178,7 @@ hex_mem hex_mem(
   .i_request(w_hex_DV & r_request),
   .o_data(w_hex_data_byte),
   .o_data_DV(w_hex_receive),
+
   .o_hex_display(o_hex)
 );
 
@@ -176,6 +194,7 @@ sdram_controller sdram(
   .i_request(w_sdram_DV & r_request),
   .o_data(w_sdram_data_byte),
   .o_done(w_sdram_receive),
+
   .o_SDRAM_B0(SDRAM_B0),
   .o_SDRAM_B1(SDRAM_B1),
   .o_SDRAM_DQMH(SDRAM_DQMH),
@@ -188,6 +207,24 @@ sdram_controller sdram(
   .o_SDRAM_CKE(SDRAM_CKE),
   .o_SDRAM_ADR(SDRAM_A),
   .io_SDRAM_DATA(SDRAM_D)
+);
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  Memory Dedicated For Writing To Hex Display
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+gpio_interface gpio_mem(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[11:0]),
+  .i_write(w_write),
+  .i_request(w_gpio_DV & r_request),
+  .o_data(w_gpio_data_byte),
+  .o_data_DV(w_gpio_receive),
+
+  .i_gpio_data(i_gpio_data),
+  .i_gpio_control(i_gpio_control),
+  .o_gpio_control(o_gpio_control)
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
