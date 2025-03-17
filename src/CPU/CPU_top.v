@@ -115,7 +115,7 @@ register_file m_RegFile(.i_clk(i_clk), .i_data(w_input_regfile), .i_IR(w_IR),
 
 
 alu m_ALU(.i_clk(i_clk), .i_instruction(w_instruction), .i_IR(w_IR),
-  .i_A(w_registerout1), .i_B(w_registerout2), .i_PC(w_PC),
+  .i_A(w_registerout1), .i_B(w_registerout2), .i_PC(w_PC), .i_state(w_state),
   .o_load_regfile(w_alu_requests_load_to_regfile), .o_aluout(w_ALU_out),
   .o_jump_address(w_jump_address), .o_jump_DV(w_jump_DV));
 
