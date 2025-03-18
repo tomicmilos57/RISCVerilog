@@ -251,12 +251,16 @@ module DE0_TOP (CLOCK_50,
       .i_gpu_address(w_gpu_address),
       .o_gpu_data(w_gpu_data),
 
-      .o_hex(w_hex)
+      .o_hex(w_hex),
+
+      .i_gpio_data(GPIO0_D[7:0]),
+      .i_gpio_control(GPIO0_D[15:12]),
+      .o_gpio_control(GPIO0_D[11:8])
 
     );
     defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
     defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
-    
+
 
     gpu GPU(
       .i_CLK(i_clk),

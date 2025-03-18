@@ -84,6 +84,12 @@ wire w_gpio_receive;
 wire [7:0] w_gpio_data_byte;
 // GPIO wires and regs
 
+// PS2 wires and regs
+wire w_ps2_DV;
+wire w_ps2_receive;
+wire [7:0] w_ps2_data_byte;
+// PS2 wires and regs
+
 // Global wires and regs
 wire [7:0] w_read_data; //This register holds data read from submodule that is currently selected
 assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
@@ -91,6 +97,7 @@ assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_dat
                      (w_gpu_receive & w_gpu_DV) ? w_gpu_data_byte :
                      (w_hex_receive & w_hex_DV) ? w_hex_data_byte :
                      (w_gpio_receive & w_gpio_DV) ? w_gpio_data_byte :
+                     (w_ps2_receive & w_ps2_DV) ? w_ps2_data_byte :
                      8'h00;
 
 wire w_global_receive;
@@ -98,7 +105,8 @@ assign w_global_receive = w_bootloader_receive |
                           w_sdram_receive |
                           w_gpu_receive |
                           w_hex_receive |
-                          w_gpio_receive;
+                          w_gpio_receive |
+                          w_ps2_receive;
 
 // global data to submodule
 wire[7:0] w_data_to_submodule;
@@ -128,7 +136,7 @@ memory_map memory_map(
   .o_bootloader_DV(w_bootloader_DV),
   .o_sdram_DV(w_sdram_DV),
   .o_gpu_DV(w_gpu_DV),
-  .o_ps2_DV(),
+  .o_ps2_DV(w_ps2_DV),
   .o_gpio_DV(w_gpio_DV),
   .o_hex_DV(w_hex_DV)
 );
@@ -225,6 +233,20 @@ gpio_interface gpio_mem(
   .i_gpio_data(i_gpio_data),
   .i_gpio_control(i_gpio_control),
   .o_gpio_control(o_gpio_control)
+);
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  Memory Dedicated For Writing To Hex Display
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+ps2_interface ps2_mem(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[11:0]),
+  .i_write(w_write),
+  .i_request(w_ps2_DV & r_request),
+  .o_data(w_ps2_data_byte),
+  .o_data_DV(w_ps2_receive)
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
