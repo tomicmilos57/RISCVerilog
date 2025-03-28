@@ -50,6 +50,7 @@ wire [7:0] w_gpu_data;
 wire [31:0] w_hex;
 
 wire  [31:0] GPIO0_D;
+wire [63:0] w_test_pass;
 
 memory_top memory(
   .i_clk(i_clk),
@@ -81,8 +82,9 @@ memory_top memory(
 
   .i_gpio_data(GPIO0_D[7:0]),
   .i_gpio_control(GPIO0_D[15:12]),
-  .o_gpio_control(GPIO0_D[11:8])
+  .o_gpio_control(GPIO0_D[11:8]),
 
+  .o_test_pass(w_test_pass)
 );
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
 defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";

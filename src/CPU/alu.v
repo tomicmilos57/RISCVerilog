@@ -100,7 +100,8 @@ always @(posedge i_clk)begin
     32'd13:begin r_result <= w_unsigned_unsigned_product[63:32]; r_load_regfile <= 1'd1; end// MULHU
 
     32'd14:begin
-      r_result <= signed_quotient;
+      if(i_B != 32'b0) r_result <= signed_quotient;
+      else r_result <= -1;
       if(r_pipeline == 32'd25) begin
         r_load_regfile <= 1'd1;
         r_pipeline <= 32'b0;
@@ -109,7 +110,8 @@ always @(posedge i_clk)begin
     end// DIV
 
     32'd15:begin
-      r_result <= unsigned_quotient;
+      if(i_B != 32'b0) r_result <= unsigned_quotient;
+      else r_result <= -1;
       if(r_pipeline == 32'd25) begin
         r_load_regfile <= 1'd1;
         r_pipeline <= 32'b0;

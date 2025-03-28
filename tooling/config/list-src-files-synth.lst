@@ -18,6 +18,7 @@ src/Memory/cache_altera_dualport.v
 src/Memory/hex_mem.v
 src/Memory/gpio_interface.v
 src/Memory/ps2_interface.v
+src/Memory/test_mem.v
 src/DE0_TOP.v
 src/SDRAM/sdram_controller.v
 src/VGA/gpu.v
