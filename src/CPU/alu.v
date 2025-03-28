@@ -43,6 +43,15 @@ assign o_load_regfile = r_load_regfile;
 //Module wires
 reg [31:0] r_pipeline = 32'b0;
 
+wire [63:0] w_unsigned_unsigned_product;
+assign w_unsigned_unsigned_product = $unsigned(i_A) * $unsigned(i_B);
+
+wire [63:0] w_signed_signed_product;
+assign w_signed_signed_product = $signed(i_A) * $signed(i_B);
+
+wire [63:0] w_signed_unsigned_product;
+assign w_signed_unsigned_product = $signed(i_A) * $unsigned(i_B);
+
 wire [31:0] signed_quotient, signed_remainder;
 wire [31:0] unsigned_quotient, unsigned_remainder;
 
@@ -85,10 +94,10 @@ always @(posedge i_clk)begin
     32'd8: begin r_result <= i_A | i_B; r_load_regfile <= 1'd1; end// OR
     32'd9: begin r_result <= i_A & i_B; r_load_regfile <= 1'd1; end// AND
 
-    32'd10:begin r_result <= i_A * i_B; r_load_regfile <= 1'd1; end// MUL
-    32'd11:begin r_result <= ($signed(i_A) * $signed(i_B)) >> 32; r_load_regfile <= 1'd1; end// MULH
-    32'd12:begin r_result <= ($signed(i_A) * i_B) >> 32; r_load_regfile <= 1'd1; end// MULHS
-    32'd13:begin r_result <= (i_A * i_B) >> 32; r_load_regfile <= 1'd1; end// MULHU
+    32'd10:begin r_result <= w_signed_signed_product[31:0]; r_load_regfile <= 1'd1; end// MUL
+    32'd11:begin r_result <= w_signed_signed_product[63:32]; r_load_regfile <= 1'd1; end// MULH
+    32'd12:begin r_result <= w_signed_unsigned_product[63:32]; r_load_regfile <= 1'd1; end// MULHS
+    32'd13:begin r_result <= w_unsigned_unsigned_product[63:32]; r_load_regfile <= 1'd1; end// MULHU
 
     32'd14:begin
       r_result <= signed_quotient;
