@@ -49,8 +49,8 @@ assign w_unsigned_unsigned_product = $unsigned(i_A) * $unsigned(i_B);
 wire [63:0] w_signed_signed_product;
 assign w_signed_signed_product = $signed(i_A) * $signed(i_B);
 
-wire [63:0] w_signed_unsigned_product;
-assign w_signed_unsigned_product = $signed(i_A) * $unsigned(i_B);
+wire [127:0] w_signed_unsigned_product;
+assign w_signed_unsigned_product = {{64{i_A[31]}}, i_A} * {{64{0}}, i_B};
 
 wire [31:0] signed_quotient, signed_remainder;
 wire [31:0] unsigned_quotient, unsigned_remainder;
