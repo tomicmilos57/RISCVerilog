@@ -54,6 +54,9 @@ wire [31:0] w_hex;
 wire  [31:0] GPIO0_D;
 wire [63:0] w_test_pass;
 
+wire PS2_KBCLK;
+wire PS2_KBDAT;
+
 memory_top memory(
   .i_clk(i_clk),
   .i_bus_data(w_output_bus_data),
@@ -86,7 +89,10 @@ memory_top memory(
   .i_gpio_control(GPIO0_D[15:12]),
   .o_gpio_control(GPIO0_D[11:8]),
 
-  .o_test_pass(w_test_pass)
+  .o_test_pass(w_test_pass),
+
+  .i_ps2_clk(PS2_KBCLK),
+  .i_ps2_data(PS2_KBDAT)
 );
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
 defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";

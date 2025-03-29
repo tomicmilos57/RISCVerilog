@@ -18,8 +18,10 @@ src/Memory/cache_altera.v
 src/Memory/cache_altera_dualport.v
 src/Memory/hex_mem.v
 src/Memory/gpio_interface.v
-src/Memory/ps2_interface.v
 src/Memory/test_mem.v
+src/PS2/debouncer.v
+src/PS2/ps2.v
+src/PS2/ps2_interface.v
 src/SDRAM/sdram_controller.v
 src/VGA/gpu.v
 src/VGA/vga_controller.v

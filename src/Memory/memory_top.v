@@ -29,7 +29,10 @@ module memory_top(
   input [3:0]  i_gpio_control,
   output [3:0] o_gpio_control,
 
-  output [63:0] o_test_pass
+  output [63:0] o_test_pass,
+
+  input          i_ps2_clk,
+  input          i_ps2_data
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -258,7 +261,10 @@ ps2_interface ps2_mem(
   .i_write(w_write),
   .i_request(w_ps2_DV & r_request),
   .o_data(w_ps2_data_byte),
-  .o_data_DV(w_ps2_receive)
+  .o_data_DV(w_ps2_receive),
+
+  .i_ps2_clk(i_ps2_clk),
+  .i_ps2_data(i_ps2_data)
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

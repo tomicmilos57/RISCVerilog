@@ -255,8 +255,10 @@ module DE0_TOP (CLOCK_50,
 
       .i_gpio_data(GPIO0_D[7:0]),
       .i_gpio_control(GPIO0_D[15:12]),
-      .o_gpio_control(GPIO0_D[11:8])
+      .o_gpio_control(GPIO0_D[11:8]),
 
+      .i_ps2_clk(PS2_KBCLK),
+      .i_ps2_data(PS2_KBDAT)
     );
     defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
     defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
