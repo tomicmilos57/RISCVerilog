@@ -10,13 +10,15 @@ module CPU_top(
   output [1023:0] o_regs,
   output o_state,
   output [31:0] o_PC,
-  output [31:0] o_IR
+  output [31:0] o_IR,
+  output [31:0] o_instruction
 );
 
 //INSTRUCTION REGISTER
 wire [31:0] w_IR;
 assign o_IR = w_IR;
 wire [31:0] w_instruction;
+assign o_instruction = w_instruction;
 wire w_fetch_over;
 
 //PROGRAM COUNTER

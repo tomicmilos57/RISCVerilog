@@ -12,8 +12,8 @@ module test_mem (
 reg [7:0] mem [0:63];
 reg [7:0] offset [0:3];
 
-assign o_data = (i_address >= 64 && i_address < 67) ? offset[i_address - 64] :
-                (i_address < 64) ? mem[i_address] :
+assign o_data = (i_address >= 32'd64 && i_address < 32'd67) ? offset[i_address - 32'd64] :
+                (i_address < 32'd64) ? mem[i_address] :
                 8'b0;
 
 assign o_test_pass = {mem[63][0], mem[62][0], mem[61][0], mem[60][0],
@@ -36,9 +36,13 @@ assign o_test_pass = {mem[63][0], mem[62][0], mem[61][0], mem[60][0],
 
 integer i;
 initial begin
-  for(i = 0; i < 64; i = i + 1) begin
+  for(i = 0; i < 32'd64; i = i + 1) begin
     mem[i] = 8'b0;
   end
+  offset[0] = 8'b0;
+  offset[1] = 8'b0;
+  offset[2] = 8'b0;
+  offset[3] = 8'b0;
 end
 
 always @(posedge i_clk) begin
@@ -47,14 +51,15 @@ always @(posedge i_clk) begin
     if (i_request) begin
         o_data_DV <= 1'b1;
 
-        if (i_write && i_address >= 64 && i_address < 67) begin
-            offset[i_address - 64] <= i_data;
+        if (i_write && i_address >= 32'd64 && i_address < 32'd67) begin
+            offset[i_address - 32'd64] <= i_data;
         end
 
-        if (i_write && i_address < 64) begin
+        if (i_write && i_address < 32'd64) begin
             mem[i_address] <= i_data;
         end
     end
 end
 
 endmodule
+

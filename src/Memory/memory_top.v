@@ -160,6 +160,17 @@ memory_map memory_map(
 //  Cache/Bootloader Fast Memory
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+`ifdef SIMULATION
+cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(16)) bootloader(
+  .i_clk(i_clk),
+  .i_data(w_data_to_submodule),
+  .i_address(w_mar[15:0]),
+  .i_write(w_write),
+  .i_request(w_bootloader_DV & r_request),
+  .o_data(w_bootloader_data_byte),
+  .o_data_DV(w_bootloader_receive)
+);
+`else
 cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(
   .i_clk(i_clk),
   .i_data(w_data_to_submodule),
@@ -169,6 +180,7 @@ cache_altera #(.DATA_WIDTH(8), .ADDR_WIDTH(12)) bootloader(
   .o_data(w_bootloader_data_byte),
   .o_data_DV(w_bootloader_receive)
 );
+`endif
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  GPU Dual Port Memory
@@ -339,6 +351,7 @@ always @(posedge i_clk) begin
   end
 
 end
+
 
 endmodule
 

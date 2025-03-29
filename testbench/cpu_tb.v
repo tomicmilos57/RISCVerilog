@@ -1,3 +1,4 @@
+// `define SIMULATION
 module cpu_tb;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -17,6 +18,7 @@ wire [31:0] w_reg;
 wire w_state;
 wire [31:0] w_PC;
 wire [31:0] w_IR;
+wire [31:0] w_instruction;
 
 CPU_top cpu(
   .i_clk(i_clk),
@@ -30,6 +32,7 @@ CPU_top cpu(
   .o_regs(w_regs),
   .o_state(w_state),
   .o_PC(w_PC),
+  .o_instruction(w_instruction),
   .o_IR(w_IR)
 );
 
@@ -94,7 +97,11 @@ memory_top memory(
   .i_ps2_clk(PS2_KBCLK),
   .i_ps2_data(PS2_KBDAT)
 );
+`ifdef SIMULATION
+defparam memory.bootloader.altsyncram_component.init_file = "../misc/test.mif";
+`else
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
+`endif
 defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 
 
@@ -114,9 +121,6 @@ gpu gpu(
   .o_GREEN(w_green),
   .o_BLUE(w_blue)
 );
-
-
-
 
 wire [6:0]  HEX0_D;
 wire        HEX0_DP;
@@ -153,7 +157,82 @@ initial begin
 end
 
 initial begin
+  `ifdef SIMULATION
+  #10000000;
+  `else
   #1000000;
+  `endif
+  $finish;
+end
+
+always @(w_instruction)
+  if(w_instruction == 32'd255)begin
+    `ifdef SIMULATION
+      if (w_test_pass[0])  $display("add PASSED");  else $display("add FAILED");
+      if (w_test_pass[1])  $display("addi PASSED"); else $display("addi FAILED");
+      if (w_test_pass[2])  $display("and PASSED");  else $display("and FAILED");
+      if (w_test_pass[3])  $display("andi PASSED"); else $display("andi FAILED");
+      if (w_test_pass[4])  $display("auipc PASSED"); else $display("auipc FAILED");
+      if (w_test_pass[5])  $display("beq PASSED"); else $display("beq FAILED");
+      if (w_test_pass[6])  $display("bge PASSED"); else $display("bge FAILED");
+      if (w_test_pass[7])  $display("bgeu PASSED"); else $display("bgeu FAILED");
+      if (w_test_pass[8])  $display("blt PASSED"); else $display("blt FAILED");
+      if (w_test_pass[9])  $display("bltu PASSED"); else $display("bltu FAILED");
+      if (w_test_pass[10]) $display("bne PASSED"); else $display("bne FAILED");
+      if (w_test_pass[11]) $display("div PASSED"); else $display("div FAILED");
+      if (w_test_pass[12]) $display("divu PASSED"); else $display("divu FAILED");
+      if (w_test_pass[13]) $display("j PASSED"); else $display("j FAILED");
+      if (w_test_pass[14]) $display("jal PASSED"); else $display("jal FAILED");
+      if (w_test_pass[15]) $display("jalr PASSED"); else $display("jalr FAILED");
+      if (w_test_pass[16]) $display("lb PASSED"); else $display("lb FAILED");
+      if (w_test_pass[17]) $display("lbu PASSED"); else $display("lbu FAILED");
+      if (w_test_pass[18]) $display("lh PASSED"); else $display("lh FAILED");
+      if (w_test_pass[19]) $display("lhu PASSED"); else $display("lhu FAILED");
+      if (w_test_pass[20]) $display("lui PASSED"); else $display("lui FAILED");
+      if (w_test_pass[21]) $display("lw PASSED"); else $display("lw FAILED");
+      if (w_test_pass[22]) $display("mul PASSED"); else $display("mul FAILED");
+      if (w_test_pass[23]) $display("mulh PASSED"); else $display("mulh FAILED");
+      if (w_test_pass[24]) $display("mulhsu PASSED"); else $display("mulhsu FAILED");
+      if (w_test_pass[25]) $display("mulhu PASSED"); else $display("mulhu FAILED");
+      if (w_test_pass[26]) $display("or PASSED"); else $display("or FAILED");
+      if (w_test_pass[27]) $display("ori PASSED"); else $display("ori FAILED");
+      if (w_test_pass[28]) $display("rem PASSED"); else $display("rem FAILED");
+      if (w_test_pass[29]) $display("remu PASSED"); else $display("remu FAILED");
+      if (w_test_pass[30]) $display("sb PASSED"); else $display("sb FAILED");
+      if (w_test_pass[31]) $display("sh PASSED"); else $display("sh FAILED");
+      if (w_test_pass[32]) $display("simple PASSED"); else $display("simple FAILED");
+      if (w_test_pass[33]) $display("sll PASSED"); else $display("sll FAILED");
+      if (w_test_pass[34]) $display("slli PASSED"); else $display("slli FAILED");
+      if (w_test_pass[35]) $display("slt PASSED"); else $display("slt FAILED");
+      if (w_test_pass[36]) $display("slti PASSED"); else $display("slti FAILED");
+      if (w_test_pass[37]) $display("sra PASSED"); else $display("sra FAILED");
+      if (w_test_pass[38]) $display("srai PASSED"); else $display("srai FAILED");
+      if (w_test_pass[39]) $display("srl PASSED"); else $display("srl FAILED");
+      if (w_test_pass[40]) $display("srli PASSED"); else $display("srli FAILED");
+      if (w_test_pass[41]) $display("sub PASSED"); else $display("sub FAILED");
+      if (w_test_pass[42]) $display("sw PASSED"); else $display("sw FAILED");
+      if (w_test_pass[43]) $display("xor PASSED"); else $display("xor FAILED");
+      if (w_test_pass[44]) $display("xori PASSED"); else $display("xori FAILED");
+      if (w_test_pass[45]) $display("TEST 45 PASSED");
+      if (w_test_pass[46]) $display("TEST 46 PASSED");
+      if (w_test_pass[47]) $display("TEST 47 PASSED");
+      if (w_test_pass[48]) $display("TEST 48 PASSED");
+      if (w_test_pass[49]) $display("TEST 49 PASSED");
+      if (w_test_pass[50]) $display("TEST 50 PASSED");
+      if (w_test_pass[51]) $display("TEST 51 PASSED");
+      if (w_test_pass[52]) $display("TEST 52 PASSED");
+      if (w_test_pass[53]) $display("TEST 53 PASSED");
+      if (w_test_pass[54]) $display("TEST 54 PASSED");
+      if (w_test_pass[55]) $display("TEST 55 PASSED");
+      if (w_test_pass[56]) $display("TEST 56 PASSED");
+      if (w_test_pass[57]) $display("TEST 57 PASSED");
+      if (w_test_pass[58]) $display("TEST 58 PASSED");
+      if (w_test_pass[59]) $display("TEST 59 PASSED");
+      if (w_test_pass[60]) $display("TEST 60 PASSED");
+      if (w_test_pass[61]) $display("TEST 61 PASSED");
+      if (w_test_pass[62]) $display("TEST 62 PASSED");
+      if (w_test_pass[63]) $display("TEST 63 PASSED");
+    `endif
   $finish;
 end
 

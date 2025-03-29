@@ -9,7 +9,11 @@ module memory_map (
     output wire o_test_DV
 );
 
+`ifdef SIMULATION
+assign o_bootloader_DV = (i_address < 32'h00010000); //64kB
+`else
 assign o_bootloader_DV = (i_address < 32'h00002000); //8kB
+`endif
 
 assign o_sdram_DV = (i_address >= 32'h10000000 && i_address < 32'h20000000);
 
