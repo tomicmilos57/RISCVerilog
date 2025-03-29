@@ -1,9 +1,13 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /top_display/i0
-add wave -noupdate /top_display/i1
-add wave -noupdate /top_display/s0
-add wave -noupdate /top_display/out
+wave radix hex
+add wave -noupdate /cpu_tb/w_test_pass
+add wave -noupdate /cpu_tb/w_PC
+add wave -noupdate /cpu_tb/w_IR
+add wave -noupdate /cpu_tb/cpu/w_instruction
+wave -radix hex /cpu_tb/w_PC
+wave -radix hex /cpu_tb/w_IR
+wave -radix decimal /cpu_tb/cpu/w_instruction
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0
@@ -21,4 +25,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {200 ps}
+WaveRestoreZoom {0 ps} {20000 ps}

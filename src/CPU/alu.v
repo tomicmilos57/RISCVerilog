@@ -90,7 +90,7 @@ always @(posedge i_clk)begin
 
     32'd5: begin r_result <= i_A ^ i_B; r_load_regfile <= 1'd1; end// XOR
     32'd6: begin r_result <= i_A >> i_B[4:0]; r_load_regfile <= 1'd1; end// SRL
-    32'd7: begin r_result <= i_A >>> i_B[4:0]; r_load_regfile <= 1'd1; end// SRA
+    32'd7: begin r_result <= $signed(i_A) >>> i_B[4:0]; r_load_regfile <= 1'd1; end// SRA
     32'd8: begin r_result <= i_A | i_B; r_load_regfile <= 1'd1; end// OR
     32'd9: begin r_result <= i_A & i_B; r_load_regfile <= 1'd1; end// AND
 

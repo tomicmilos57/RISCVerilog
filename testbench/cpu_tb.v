@@ -15,6 +15,8 @@ wire w_output_write_notread;
 wire [1023:0] w_regs;
 wire [31:0] w_reg;
 wire w_state;
+wire [31:0] w_PC;
+wire [31:0] w_IR;
 
 CPU_top cpu(
   .i_clk(i_clk),
@@ -27,8 +29,8 @@ CPU_top cpu(
   .o_write_notread(w_output_write_notread),
   .o_regs(w_regs),
   .o_state(w_state),
-  .o_PC(),
-  .o_IR()
+  .o_PC(w_PC),
+  .o_IR(w_IR)
 );
 
 wire SDRAM_B0;
