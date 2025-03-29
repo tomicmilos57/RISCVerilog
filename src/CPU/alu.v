@@ -161,7 +161,7 @@ always @(posedge i_clk)begin
     32'd23: begin r_result <= i_A & w_se_immed; r_load_regfile <= 1'd1; end// ANDI
     32'd24: begin r_result <= i_A << w_immed[4:0]; r_load_regfile <= 1'd1; end// SLLI
     32'd25: begin r_result <= i_A >> w_immed[4:0]; r_load_regfile <= 1'd1; end// SRLI
-    32'd26: begin r_result <= i_A >>> w_immed[4:0]; r_load_regfile <= 1'd1; end// SRAI
+    32'd26: begin r_result <= $signed(i_A) >>> w_immed[4:0]; r_load_regfile <= 1'd1; end// SRAI
     32'd27: ;// LB
     32'd28: ;// LH
     32'd29: ;// LW
