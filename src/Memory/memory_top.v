@@ -38,7 +38,9 @@ module memory_top (
     inout  SD_DAT3,
     inout  SD_CMD,
     output SD_CLK,
-    input  SD_WP_N
+    input  SD_WP_N,
+
+    output [7:0] o_sd_card_state
 );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -335,7 +337,9 @@ module memory_top (
       .SD_DAT3(SD_DAT3),
       .SD_CMD (SD_CMD),
       .SD_CLK (SD_CLK),
-      .SD_WP_N(SD_WP_N)
+      .SD_WP_N(SD_WP_N),
+
+      .o_sd_card_state(o_sd_card_state)
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

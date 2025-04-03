@@ -208,6 +208,8 @@ module DE0_TOP (
 
   wire [31:0] w_hex;
 
+  wire [7:0] w_sd_card_state;
+
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Structural coding
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -266,7 +268,9 @@ module DE0_TOP (
       .SD_DAT3(SD_DAT3),
       .SD_CMD (SD_CMD),
       .SD_CLK (SD_CLK),
-      .SD_WP_N(SD_WP_N)
+      .SD_WP_N(SD_WP_N),
+
+      .o_sd_card_state(w_sd_card_state)
   );
   defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
       defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
@@ -312,6 +316,12 @@ module DE0_TOP (
 
   assign LEDG[0] = w_state == 1'b0;
   assign LEDG[1] = w_state == 1'b1;
+
+  localparam Init = 8'b0, Idle = 8'h01, Read = 8'h02, Write = 8'h03;
+  assign LEDG[2] = w_sd_card_state == Init;
+  assign LEDG[3] = w_sd_card_state == Idle;
+  assign LEDG[4] = w_sd_card_state == Read;
+  assign LEDG[5] = w_sd_card_state == Write;
 
   assign HEX0_DP = 1'b1;
   assign HEX1_DP = 1'b1;
