@@ -18,6 +18,7 @@ src/Memory/cache_altera_dualport.v
 src/Memory/hex_mem.v
 src/Memory/gpio_interface.v
 src/Memory/test_mem.v
+src/Memory/sd_card_mem.v
 src/PS2/debouncer.v
 src/PS2/ps2.v
 src/PS2/ps2_interface.v
@@ -25,3 +26,9 @@ src/DE0_TOP.v
 src/SDRAM/sdram_controller.v
 src/VGA/gpu.v
 src/VGA/vga_controller.v
+src/SDCard/clock_divider.v
+src/SDCard/sd_card_cmd.v
+src/SDCard/sd_card_controller.v
+src/SDCard/sd_card_init.v
+src/SDCard/sd_card_read.v
+src/SDCard/sd_card_write.v

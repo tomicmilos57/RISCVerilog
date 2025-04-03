@@ -60,6 +60,11 @@ wire [63:0] w_test_pass;
 wire PS2_KBCLK;
 wire PS2_KBDAT;
 
+wire SD_DAT0;
+wire SD_DAT3;
+wire SD_CMD;
+wire SD_CLK;
+wire SD_WP_N;
 memory_top memory(
   .i_clk(i_clk),
   .i_bus_data(w_output_bus_data),
@@ -95,8 +100,15 @@ memory_top memory(
   .o_test_pass(w_test_pass),
 
   .i_ps2_clk(PS2_KBCLK),
-  .i_ps2_data(PS2_KBDAT)
+  .i_ps2_data(PS2_KBDAT),
+
+  .SD_DAT0(SD_DAT0),
+  .SD_DAT3(SD_DAT3),
+  .SD_CMD (SD_CMD),
+  .SD_CLK (SD_CLK),
+  .SD_WP_N(SD_WP_N)
 );
+
 `ifdef SIMULATION
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/test.mif";
 `else
@@ -237,4 +249,3 @@ always @(w_instruction)
 end
 
 endmodule
-
