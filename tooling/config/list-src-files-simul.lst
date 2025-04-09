@@ -12,6 +12,7 @@ src/CPU/instruction_register.v
 src/CPU/load_store.v
 src/CPU/program_counter.v
 src/CPU/register_file.v
+src/CPU/CSR_file.v
 src/Memory/memory_top.v
 src/Memory/memory_map.v
 src/Memory/cache_altera.v

@@ -43,6 +43,10 @@ module CPU_top (
   wire w_alu_exec;
   assign w_alu_exec = w_alu_requests_load_to_regfile & EXECUTE;
 
+  wire [11:0] w_alu_to_csr_select;
+  wire        w_alu_to_csr_load;
+  wire [31:0] w_alu_to_csr_data;
+
   //MEM CONTROLER
   wire [31:0] w_bus_data;
   wire [31:0] w_bus_address;
@@ -73,8 +77,13 @@ module CPU_top (
   wire [31:0] w_registerout2;
 
   //CSRFILE
-  wire i_load_csr;
-  wire [11:0] i_csr_select = i_IR[31:20];
+  wire w_csr_load = w_alu_to_csr_load;
+  wire [11:0] w_csr_select = w_alu_to_csr_select;
+  wire [31:0] w_csr_data = w_alu_to_csr_data;
+
+  wire [31:0] w_csr_regout;
+  wire [11:0] i_csr_select = w_IR[31:20];
+
   wire [31:0] w_mhartid;
   wire [31:0] w_mstatus;
   wire [31:0] w_mepc;
@@ -173,7 +182,12 @@ module CPU_top (
       .o_load_regfile(w_alu_requests_load_to_regfile),
       .o_aluout(w_ALU_out),
       .o_jump_address(w_jump_address),
-      .o_jump_DV(w_jump_DV)
+      .o_jump_DV(w_jump_DV),
+
+      .i_csr_reg(w_csr_regout),
+      .o_csr_select(w_alu_to_csr_select),
+      .o_csr_load(w_alu_to_csr_load),
+      .o_csr_data(w_alu_to_csr_data)
   );
 
 
@@ -212,9 +226,10 @@ module CPU_top (
 
   CSR_file m_CSR_file (
       .i_clk(i_clk),
-      .i_data(i_data),
-      .i_select(i_csr_select),
-      .i_load(i_load_csr),
+      .i_data(w_csr_data),
+      .i_select(w_csr_select),
+      .i_load(w_csr_load),
+      .o_csr_regout(w_csr_regout),
 
       .o_mhartid(w_mhartid),
       .o_mstatus(w_mstatus),

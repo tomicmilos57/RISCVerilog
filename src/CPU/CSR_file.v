@@ -3,6 +3,7 @@ module CSR_file (
     input [31:0] i_data,
     input [11:0] i_select,
     input i_load,
+    output reg [31:0] o_csr_regout,
 
     output [31:0] o_mhartid,
     output [31:0] o_mstatus,
@@ -46,8 +47,30 @@ module CSR_file (
   reg [31:0] r_mscratch = 32'h00000000;
 
   always @(posedge i_clk) begin
+    case (i_select)
+      12'hF14: o_csr_regout <= r_mhartid;
+      12'h300: o_csr_regout <= r_mstatus;
+      12'h341: o_csr_regout <= r_mepc;
+      12'h100: o_csr_regout <= r_sstatus;
+      12'h144: o_csr_regout <= r_sip;
+      12'h104: o_csr_regout <= r_sie;
+      12'h304: o_csr_regout <= r_mie;
+      12'h141: o_csr_regout <= r_sepc;
+      12'h302: o_csr_regout <= r_medeleg;
+      12'h303: o_csr_regout <= r_mideleg;
+      12'h105: o_csr_regout <= r_stvec;
+      12'h305: o_csr_regout <= r_mtvec;
+      12'h180: o_csr_regout <= r_satp;
+      12'h142: o_csr_regout <= r_scause;
+      12'h143: o_csr_regout <= r_stval;
+      12'h306: o_csr_regout <= r_mcounteren;
+      12'hC01: o_csr_regout <= r_time;
+      12'h140: o_csr_regout <= r_sscratch;
+      12'h340: o_csr_regout <= r_mscratch;
+      default: ;
+    endcase
     if (i_load) begin
-      case (i_IR)
+      case (i_select)
         12'hF14: r_mhartid <= i_data;
         12'h300: r_mstatus <= i_data;
         12'h341: r_mepc <= i_data;

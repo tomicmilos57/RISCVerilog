@@ -9,7 +9,12 @@ module alu (
     o_load_regfile,
     o_aluout,
     o_jump_address,
-    o_jump_DV
+    o_jump_DV,
+
+    i_csr_reg,
+    o_csr_select,
+    o_csr_load,
+    o_csr_data
 );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -27,6 +32,11 @@ module alu (
   output [31:0] o_jump_address;
   output o_load_regfile;
   output reg o_jump_DV;
+
+  input [31:0] i_csr_reg;
+  output [11:0] o_csr_select;
+  output o_csr_load;
+  output [31:0] o_csr_data;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Combinational Logic
@@ -50,6 +60,17 @@ module alu (
 
   reg r_load_regfile = 1'd0;
   assign o_load_regfile = r_load_regfile;
+
+  //CSR wires
+  reg signed [31:0] r_csr_result = 32'd0;
+  assign o_csr_data = r_csr_result;
+
+  reg r_csr_load = 1'b0;
+  assign o_csr_load   = r_csr_load;
+
+  assign o_csr_select = i_IR[31:20];
+
+  wire [31:0] w_ze_imm_csr = {27'd0, i_IR[19:15]};
 
   //Module wires
   reg  [31:0] r_pipeline = 32'b0;
@@ -117,6 +138,7 @@ module alu (
   always @(*) begin
     o_jump_DV <= 1'd0;
     r_load_regfile <= 1'd0;
+    r_csr_load <= 1'b0;
     case (i_instruction)
 
       32'd0: begin
@@ -186,40 +208,6 @@ module alu (
         r_result <= w_unsigned_unsigned_product[63:32];
         r_load_regfile <= 1'd1;
       end  // MULHU
-
-      // 32'd14: begin
-      //   if (i_B != 32'b0) r_result <= signed_quotient;
-      //   else r_result <= -1;
-      //   if (r_pipeline == 32'd25) begin
-      //     r_load_regfile <= 1'd1;
-      //     r_pipeline <= 32'b0;
-      //   end else r_pipeline <= r_pipeline + 1;
-      // end  // DIV
-      //
-      // 32'd15: begin
-      //   if (i_B != 32'b0) r_result <= unsigned_quotient;
-      //   else r_result <= -1;
-      //   if (r_pipeline == 32'd25) begin
-      //     r_load_regfile <= 1'd1;
-      //     r_pipeline <= 32'b0;
-      //   end else r_pipeline <= r_pipeline + 1;
-      // end  // DIVU
-      //
-      // 32'd16: begin
-      //   r_result <= signed_remainder;
-      //   if (r_pipeline == 32'd25) begin
-      //     r_load_regfile <= 1'd1;
-      //     r_pipeline <= 32'b0;
-      //   end else r_pipeline <= r_pipeline + 1;
-      // end  // REM
-      //
-      // 32'd17: begin
-      //   r_result <= unsigned_remainder;
-      //   if (r_pipeline == 32'd25) begin
-      //     r_load_regfile <= 1'd1;
-      //     r_pipeline <= 32'b0;
-      //   end else r_pipeline <= r_pipeline + 1;
-      // end  // REMU
 
       32'd18: begin
         r_result <= i_A + w_se_immed;
@@ -329,6 +317,69 @@ module alu (
         r_result <= i_PC + w_se_immedLUI;
         r_load_regfile <= 1'd1;
       end  // AUIPC
+      32'd45: begin  // CSRRW
+        r_csr_result <= i_A;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd46: begin  // CSRRS
+        r_csr_result <= i_csr_reg | i_A;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd47: begin  // CSRRC
+        r_csr_result <= i_csr_reg & ~i_A;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd48: begin  // CSRRWI
+        r_csr_result <= w_ze_imm_csr;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd49: begin  // CSRRSI
+        r_csr_result <= i_csr_reg | w_ze_imm_csr;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd50: begin  // CSRRCI
+        r_csr_result <= i_csr_reg & ~w_ze_imm_csr;
+        r_csr_load <= 1'b1;
+        r_result <= i_csr_reg;
+        r_load_regfile <= 1'd1;
+      end
+      32'd51: begin  // FENCE
+        r_load_regfile <= 1'd0;
+      end
+      32'd52: begin  // FENCE.I
+        r_load_regfile <= 1'd0;
+      end
+      32'd53: begin  // ECALL
+        r_load_regfile <= 1'd0;
+      end
+      32'd54: begin  // EBREAK
+        r_load_regfile <= 1'd0;
+      end
+      32'd55: begin  // URET
+        r_load_regfile <= 1'd0;
+      end
+      32'd56: begin  // SRET
+        r_load_regfile <= 1'd0;
+      end
+      32'd57: begin  // MRET
+        r_load_regfile <= 1'd0;
+      end
+      32'd58: begin  // WFI
+        r_load_regfile <= 1'd0;
+      end
+      32'd59: begin  // SFENCE.VMA
+        r_load_regfile <= 1'd0;
+      end
       default: ;
     endcase
   end
