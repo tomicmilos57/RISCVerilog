@@ -74,6 +74,7 @@ module CPU_top (
 
   //CSRFILE
   wire i_load_csr;
+  wire [11:0] i_csr_select = i_IR[31:20];
   wire [31:0] w_mhartid;
   wire [31:0] w_mstatus;
   wire [31:0] w_mepc;
@@ -85,15 +86,14 @@ module CPU_top (
   wire [31:0] w_medeleg;
   wire [31:0] w_mideleg;
   wire [31:0] w_stvec;
-  wire [31:0] w_stimecmp;
-  wire [31:0] w_menvcfg;
-  wire [31:0] w_pmpcfg0;
-  wire [31:0] w_pmpaddr0;
+  wire [31:0] w_mtvec;
   wire [31:0] w_satp;
   wire [31:0] w_scause;
   wire [31:0] w_stval;
   wire [31:0] w_mcounteren;
   wire [31:0] w_time;
+  wire [31:0] w_sscratch;
+  wire [31:0] w_mscratch;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Instruction Register
@@ -211,9 +211,9 @@ module CPU_top (
 
 
   CSR_file m_CSR_file (
-      .i_clk (i_clk),
+      .i_clk(i_clk),
       .i_data(i_data),
-      .i_IR  (i_IR),
+      .i_select(i_csr_select),
       .i_load(i_load_csr),
 
       .o_mhartid(w_mhartid),
@@ -227,15 +227,14 @@ module CPU_top (
       .o_medeleg(w_medeleg),
       .o_mideleg(w_mideleg),
       .o_stvec(w_stvec),
-      .o_stimecmp(w_stimecmp),
-      .o_menvcfg(w_menvcfg),
-      .o_pmpcfg0(w_pmpcfg0),
-      .o_pmpaddr0(w_pmpaddr0),
+      .o_mtvec(w_mtvec),
       .o_satp(w_satp),
       .o_scause(w_scause),
       .o_stval(w_stval),
       .o_mcounteren(w_mcounteren),
-      .o_time(w_time)
+      .o_time(w_time),
+      .o_sscratch(w_sscratch),
+      .o_mscratch(w_mscratch)
   );
 
 
