@@ -1,4 +1,4 @@
-// `define SIMULATION
+`define SIMULATION
 module cpu_tb;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -245,6 +245,7 @@ always @(w_instruction)
       if (w_test_pass[62]) $display("TEST 62 PASSED");
       if (w_test_pass[63]) $display("TEST 63 PASSED");
     `endif
+  $display("%d", $time);
   $finish;
 end
 

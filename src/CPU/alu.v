@@ -71,9 +71,52 @@ module alu (
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
   always @(posedge i_clk) begin
+
+    if (i_state == 1'b0) r_pipeline <= 4'b0;
+
+    case (i_instruction)
+      32'd14: begin
+        if (i_B != 32'b0) r_result <= signed_quotient;
+        else r_result <= -1;
+        if (r_pipeline == 32'd25) begin
+          r_load_regfile <= 1'd1;
+          r_pipeline <= 32'b0;
+        end else r_pipeline <= r_pipeline + 1;
+      end  // DIV
+
+      32'd15: begin
+        if (i_B != 32'b0) r_result <= unsigned_quotient;
+        else r_result <= -1;
+        if (r_pipeline == 32'd25) begin
+          r_load_regfile <= 1'd1;
+          r_pipeline <= 32'b0;
+        end else r_pipeline <= r_pipeline + 1;
+      end  // DIVU
+
+      32'd16: begin
+        r_result <= signed_remainder;
+        if (r_pipeline == 32'd25) begin
+          r_load_regfile <= 1'd1;
+          r_pipeline <= 32'b0;
+        end else r_pipeline <= r_pipeline + 1;
+      end  // REM
+
+      32'd17: begin
+        r_result <= unsigned_remainder;
+        if (r_pipeline == 32'd25) begin
+          r_load_regfile <= 1'd1;
+          r_pipeline <= 32'b0;
+        end else r_pipeline <= r_pipeline + 1;
+      end  // REMU
+
+      default: ;
+    endcase
+
+  end
+
+  always @(*) begin
     o_jump_DV <= 1'd0;
     r_load_regfile <= 1'd0;
-    if (i_state == 1'b0) r_pipeline <= 4'b0;
     case (i_instruction)
 
       32'd0: begin
@@ -144,39 +187,39 @@ module alu (
         r_load_regfile <= 1'd1;
       end  // MULHU
 
-      32'd14: begin
-        if (i_B != 32'b0) r_result <= signed_quotient;
-        else r_result <= -1;
-        if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
-          r_pipeline <= 32'b0;
-        end else r_pipeline <= r_pipeline + 1;
-      end  // DIV
-
-      32'd15: begin
-        if (i_B != 32'b0) r_result <= unsigned_quotient;
-        else r_result <= -1;
-        if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
-          r_pipeline <= 32'b0;
-        end else r_pipeline <= r_pipeline + 1;
-      end  // DIVU
-
-      32'd16: begin
-        r_result <= signed_remainder;
-        if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
-          r_pipeline <= 32'b0;
-        end else r_pipeline <= r_pipeline + 1;
-      end  // REM
-
-      32'd17: begin
-        r_result <= unsigned_remainder;
-        if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
-          r_pipeline <= 32'b0;
-        end else r_pipeline <= r_pipeline + 1;
-      end  // REMU
+      // 32'd14: begin
+      //   if (i_B != 32'b0) r_result <= signed_quotient;
+      //   else r_result <= -1;
+      //   if (r_pipeline == 32'd25) begin
+      //     r_load_regfile <= 1'd1;
+      //     r_pipeline <= 32'b0;
+      //   end else r_pipeline <= r_pipeline + 1;
+      // end  // DIV
+      //
+      // 32'd15: begin
+      //   if (i_B != 32'b0) r_result <= unsigned_quotient;
+      //   else r_result <= -1;
+      //   if (r_pipeline == 32'd25) begin
+      //     r_load_regfile <= 1'd1;
+      //     r_pipeline <= 32'b0;
+      //   end else r_pipeline <= r_pipeline + 1;
+      // end  // DIVU
+      //
+      // 32'd16: begin
+      //   r_result <= signed_remainder;
+      //   if (r_pipeline == 32'd25) begin
+      //     r_load_regfile <= 1'd1;
+      //     r_pipeline <= 32'b0;
+      //   end else r_pipeline <= r_pipeline + 1;
+      // end  // REM
+      //
+      // 32'd17: begin
+      //   r_result <= unsigned_remainder;
+      //   if (r_pipeline == 32'd25) begin
+      //     r_load_regfile <= 1'd1;
+      //     r_pipeline <= 32'b0;
+      //   end else r_pipeline <= r_pipeline + 1;
+      // end  // REMU
 
       32'd18: begin
         r_result <= i_A + w_se_immed;
