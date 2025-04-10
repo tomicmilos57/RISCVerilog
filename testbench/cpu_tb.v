@@ -1,4 +1,4 @@
-`define SIMULATION
+// `define SIMULATION
 module cpu_tb;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

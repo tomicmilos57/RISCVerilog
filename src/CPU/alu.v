@@ -139,249 +139,250 @@ module alu (
     o_jump_DV <= 1'd0;
     r_load_regfile <= 1'd0;
     r_csr_load <= 1'b0;
-    case (i_instruction)
+    if (i_state == 1'b1)
+      case (i_instruction)
 
-      32'd0: begin
-        r_result <= i_A + i_B;
-        r_load_regfile <= 1'd1;
-      end  // ADD
-      32'd1: begin
-        r_result <= i_A - i_B;
-        r_load_regfile <= 1'd1;
-      end  // SUB
-      32'd2: begin
-        r_result <= i_A << i_B[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SLL
+        32'd0: begin
+          r_result <= i_A + i_B;
+          r_load_regfile <= 1'd1;
+        end  // ADD
+        32'd1: begin
+          r_result <= i_A - i_B;
+          r_load_regfile <= 1'd1;
+        end  // SUB
+        32'd2: begin
+          r_result <= i_A << i_B[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SLL
 
-      32'd3: begin  // SLT
-        if ($signed(i_A) < $signed(i_B)) begin
-          r_result <= 32'd1;
-        end else begin
-          r_result <= 32'd0;
+        32'd3: begin  // SLT
+          if ($signed(i_A) < $signed(i_B)) begin
+            r_result <= 32'd1;
+          end else begin
+            r_result <= 32'd0;
+          end
+          r_load_regfile <= 1'd1;
         end
-        r_load_regfile <= 1'd1;
-      end
-      32'd4: begin  // SLTU
-        if ($unsigned(i_A) < $unsigned(i_B)) begin
-          r_result <= 32'd1;
-        end else begin
-          r_result <= 32'd0;
-        end
-        r_load_regfile <= 1'd1;
-      end  // SLTU
+        32'd4: begin  // SLTU
+          if ($unsigned(i_A) < $unsigned(i_B)) begin
+            r_result <= 32'd1;
+          end else begin
+            r_result <= 32'd0;
+          end
+          r_load_regfile <= 1'd1;
+        end  // SLTU
 
-      32'd5: begin
-        r_result <= i_A ^ i_B;
-        r_load_regfile <= 1'd1;
-      end  // XOR
-      32'd6: begin
-        r_result <= i_A >> i_B[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SRL
-      32'd7: begin
-        r_result <= $signed(i_A) >>> i_B[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SRA
-      32'd8: begin
-        r_result <= i_A | i_B;
-        r_load_regfile <= 1'd1;
-      end  // OR
-      32'd9: begin
-        r_result <= i_A & i_B;
-        r_load_regfile <= 1'd1;
-      end  // AND
+        32'd5: begin
+          r_result <= i_A ^ i_B;
+          r_load_regfile <= 1'd1;
+        end  // XOR
+        32'd6: begin
+          r_result <= i_A >> i_B[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SRL
+        32'd7: begin
+          r_result <= $signed(i_A) >>> i_B[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SRA
+        32'd8: begin
+          r_result <= i_A | i_B;
+          r_load_regfile <= 1'd1;
+        end  // OR
+        32'd9: begin
+          r_result <= i_A & i_B;
+          r_load_regfile <= 1'd1;
+        end  // AND
 
-      32'd10: begin
-        r_result <= w_signed_signed_product[31:0];
-        r_load_regfile <= 1'd1;
-      end  // MUL
-      32'd11: begin
-        r_result <= w_signed_signed_product[63:32];
-        r_load_regfile <= 1'd1;
-      end  // MULH
-      32'd12: begin
-        r_result <= w_signed_unsigned_product[63:32];
-        r_load_regfile <= 1'd1;
-      end  // MULHS
-      32'd13: begin
-        r_result <= w_unsigned_unsigned_product[63:32];
-        r_load_regfile <= 1'd1;
-      end  // MULHU
+        32'd10: begin
+          r_result <= w_signed_signed_product[31:0];
+          r_load_regfile <= 1'd1;
+        end  // MUL
+        32'd11: begin
+          r_result <= w_signed_signed_product[63:32];
+          r_load_regfile <= 1'd1;
+        end  // MULH
+        32'd12: begin
+          r_result <= w_signed_unsigned_product[63:32];
+          r_load_regfile <= 1'd1;
+        end  // MULHS
+        32'd13: begin
+          r_result <= w_unsigned_unsigned_product[63:32];
+          r_load_regfile <= 1'd1;
+        end  // MULHU
 
-      32'd18: begin
-        r_result <= i_A + w_se_immed;
-        r_load_regfile <= 1'd1;
-      end  // ADDI
-      32'd19: begin  // SLTI
-        if ($signed(i_A) < $signed(w_se_immed)) begin
-          r_result <= 32'd1;
-        end else begin
-          r_result <= 32'd0;
+        32'd18: begin
+          r_result <= i_A + w_se_immed;
+          r_load_regfile <= 1'd1;
+        end  // ADDI
+        32'd19: begin  // SLTI
+          if ($signed(i_A) < $signed(w_se_immed)) begin
+            r_result <= 32'd1;
+          end else begin
+            r_result <= 32'd0;
+          end
+          r_load_regfile <= 1'd1;
         end
-        r_load_regfile <= 1'd1;
-      end
-      32'd20: begin  // SLTIU
-        if ($unsigned(i_A) < $unsigned(w_se_immed)) begin
-          r_result <= 32'd1;
-        end else begin
-          r_result <= 32'd0;
+        32'd20: begin  // SLTIU
+          if ($unsigned(i_A) < $unsigned(w_se_immed)) begin
+            r_result <= 32'd1;
+          end else begin
+            r_result <= 32'd0;
+          end
+          r_load_regfile <= 1'd1;
         end
-        r_load_regfile <= 1'd1;
-      end
-      32'd21: begin
-        r_result <= i_A ^ w_se_immed;
-        r_load_regfile <= 1'd1;
-      end  // XORI
-      32'd22: begin
-        r_result <= i_A | w_se_immed;
-        r_load_regfile <= 1'd1;
-      end  // ORI
-      32'd23: begin
-        r_result <= i_A & w_se_immed;
-        r_load_regfile <= 1'd1;
-      end  // ANDI
-      32'd24: begin
-        r_result <= i_A << w_immed[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SLLI
-      32'd25: begin
-        r_result <= i_A >> w_immed[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SRLI
-      32'd26: begin
-        r_result <= $signed(i_A) >>> w_immed[4:0];
-        r_load_regfile <= 1'd1;
-      end  // SRAI
-      32'd27:  ;  // LB
-      32'd28:  ;  // LH
-      32'd29:  ;  // LW
-      32'd30:  ;  // LBU
-      32'd31:  ;  // LHU
-      32'd32:  ;  // SB
-      32'd33:  ;  // SH
-      32'd34:  ;  // SW
-      32'd35: begin
-        if (i_A == i_B) begin  // BEQ
+        32'd21: begin
+          r_result <= i_A ^ w_se_immed;
+          r_load_regfile <= 1'd1;
+        end  // XORI
+        32'd22: begin
+          r_result <= i_A | w_se_immed;
+          r_load_regfile <= 1'd1;
+        end  // ORI
+        32'd23: begin
+          r_result <= i_A & w_se_immed;
+          r_load_regfile <= 1'd1;
+        end  // ANDI
+        32'd24: begin
+          r_result <= i_A << w_immed[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SLLI
+        32'd25: begin
+          r_result <= i_A >> w_immed[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SRLI
+        32'd26: begin
+          r_result <= $signed(i_A) >>> w_immed[4:0];
+          r_load_regfile <= 1'd1;
+        end  // SRAI
+        32'd27:  ;  // LB
+        32'd28:  ;  // LH
+        32'd29:  ;  // LW
+        32'd30:  ;  // LBU
+        32'd31:  ;  // LHU
+        32'd32:  ;  // SB
+        32'd33:  ;  // SH
+        32'd34:  ;  // SW
+        32'd35: begin
+          if (i_A == i_B) begin  // BEQ
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end
+        32'd36: begin
+          if ($signed(i_A) != $signed(i_B)) begin  // BNE
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end
+        32'd37: begin  // BLT
+          if ($signed(i_A) < $signed(i_B)) begin
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end
+        32'd38: begin
+          if ($signed(i_A) >= $signed(i_B)) begin
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end  // BGE
+        32'd39: begin
+          if ($unsigned(i_A) < $unsigned(i_B)) begin
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end  // BLTU
+        32'd40: begin
+          if ($unsigned(i_A) >= $unsigned(i_B)) begin
+            o_jump_DV <= 1'd1;
+            r_address <= w_branch_offset + i_PC;
+          end
+        end  // BGEU
+        32'd41: begin
           o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
-        end
-      end
-      32'd36: begin
-        if ($signed(i_A) != $signed(i_B)) begin  // BNE
+          r_address <= w_jal_offset + i_PC;
+          r_result <= i_PC + 4;
+          r_load_regfile <= 1'd1;
+        end  // JAL
+        32'd42: begin
           o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
+          r_address <= w_se_immed + i_A;
+          r_result <= i_PC + 32'd4;
+          r_load_regfile <= 1'd1;
+        end  // JALR
+        32'd43: begin
+          r_result <= w_se_immedLUI;
+          r_load_regfile <= 1'd1;
+        end  // LUI
+        32'd44: begin
+          r_result <= i_PC + w_se_immedLUI;
+          r_load_regfile <= 1'd1;
+        end  // AUIPC
+        32'd45: begin  // CSRRW
+          r_csr_result <= i_A;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
         end
-      end
-      32'd37: begin  // BLT
-        if ($signed(i_A) < $signed(i_B)) begin
-          o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
+        32'd46: begin  // CSRRS
+          r_csr_result <= i_csr_reg | i_A;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
         end
-      end
-      32'd38: begin
-        if ($signed(i_A) >= $signed(i_B)) begin
-          o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
+        32'd47: begin  // CSRRC
+          r_csr_result <= i_csr_reg & ~i_A;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
         end
-      end  // BGE
-      32'd39: begin
-        if ($unsigned(i_A) < $unsigned(i_B)) begin
-          o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
+        32'd48: begin  // CSRRWI
+          r_csr_result <= w_ze_imm_csr;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
         end
-      end  // BLTU
-      32'd40: begin
-        if ($unsigned(i_A) >= $unsigned(i_B)) begin
-          o_jump_DV <= 1'd1;
-          r_address <= w_branch_offset + i_PC;
+        32'd49: begin  // CSRRSI
+          r_csr_result <= i_csr_reg | w_ze_imm_csr;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
         end
-      end  // BGEU
-      32'd41: begin
-        o_jump_DV <= 1'd1;
-        r_address <= w_jal_offset + i_PC;
-        r_result <= i_PC + 4;
-        r_load_regfile <= 1'd1;
-      end  // JAL
-      32'd42: begin
-        o_jump_DV <= 1'd1;
-        r_address <= w_se_immed + i_A;
-        r_result <= i_PC + 32'd4;
-        r_load_regfile <= 1'd1;
-      end  // JALR
-      32'd43: begin
-        r_result <= w_se_immedLUI;
-        r_load_regfile <= 1'd1;
-      end  // LUI
-      32'd44: begin
-        r_result <= i_PC + w_se_immedLUI;
-        r_load_regfile <= 1'd1;
-      end  // AUIPC
-      32'd45: begin  // CSRRW
-        r_csr_result <= i_A;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd46: begin  // CSRRS
-        r_csr_result <= i_csr_reg | i_A;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd47: begin  // CSRRC
-        r_csr_result <= i_csr_reg & ~i_A;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd48: begin  // CSRRWI
-        r_csr_result <= w_ze_imm_csr;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd49: begin  // CSRRSI
-        r_csr_result <= i_csr_reg | w_ze_imm_csr;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd50: begin  // CSRRCI
-        r_csr_result <= i_csr_reg & ~w_ze_imm_csr;
-        r_csr_load <= 1'b1;
-        r_result <= i_csr_reg;
-        r_load_regfile <= 1'd1;
-      end
-      32'd51: begin  // FENCE
-        r_load_regfile <= 1'd0;
-      end
-      32'd52: begin  // FENCE.I
-        r_load_regfile <= 1'd0;
-      end
-      32'd53: begin  // ECALL
-        r_load_regfile <= 1'd0;
-      end
-      32'd54: begin  // EBREAK
-        r_load_regfile <= 1'd0;
-      end
-      32'd55: begin  // URET
-        r_load_regfile <= 1'd0;
-      end
-      32'd56: begin  // SRET
-        r_load_regfile <= 1'd0;
-      end
-      32'd57: begin  // MRET
-        r_load_regfile <= 1'd0;
-      end
-      32'd58: begin  // WFI
-        r_load_regfile <= 1'd0;
-      end
-      32'd59: begin  // SFENCE.VMA
-        r_load_regfile <= 1'd0;
-      end
-      default: ;
-    endcase
+        32'd50: begin  // CSRRCI
+          r_csr_result <= i_csr_reg & ~w_ze_imm_csr;
+          r_csr_load <= 1'b1;
+          r_result <= i_csr_reg;
+          r_load_regfile <= 1'd1;
+        end
+        32'd51: begin  // FENCE
+          r_load_regfile <= 1'd0;
+        end
+        32'd52: begin  // FENCE.I
+          r_load_regfile <= 1'd0;
+        end
+        32'd53: begin  // ECALL
+          r_load_regfile <= 1'd0;
+        end
+        32'd54: begin  // EBREAK
+          r_load_regfile <= 1'd0;
+        end
+        32'd55: begin  // URET
+          r_load_regfile <= 1'd0;
+        end
+        32'd56: begin  // SRET
+          r_load_regfile <= 1'd0;
+        end
+        32'd57: begin  // MRET
+          r_load_regfile <= 1'd0;
+        end
+        32'd58: begin  // WFI
+          r_load_regfile <= 1'd0;
+        end
+        32'd59: begin  // SFENCE.VMA
+          r_load_regfile <= 1'd0;
+        end
+        default: ;
+      endcase
   end
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

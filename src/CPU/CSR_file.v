@@ -46,7 +46,7 @@ module CSR_file (
   reg [31:0] r_sscratch = 32'h00000000;
   reg [31:0] r_mscratch = 32'h00000000;
 
-  always @(posedge i_clk) begin
+  always @(*) begin
     case (i_select)
       12'hF14: o_csr_regout <= r_mhartid;
       12'h300: o_csr_regout <= r_mstatus;
@@ -69,6 +69,10 @@ module CSR_file (
       12'h340: o_csr_regout <= r_mscratch;
       default: ;
     endcase
+  end
+
+  always @(posedge i_clk) begin
+
     if (i_load) begin
       case (i_select)
         12'hF14: r_mhartid <= i_data;
