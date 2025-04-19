@@ -55,27 +55,40 @@ always @(posedge i_clk)begin
 
     if(i_instruction >= 32'd14 && i_instruction <= 32'd17)begin //DIV and REM instructions
       if(i_div_rem_finnished) begin
-        r_state <= 32'b0;
-        r_start_fetch <= 1'h1;
+        if (i_m_interrupt) //received interrupt
+          r_state <= 32'd2;
+        else if (i_s_interrupt)
+          r_state <= 32'd3;
+        else begin
+          r_state <= 32'b0;
+          r_start_fetch <= 1'h1;
+        end
       end
     end
 
     else if(i_instruction >= 32'd27 && i_instruction <= 32'd34)begin //Load and Store instructions
       if(i_bus_DV) begin // value received from memory
-        r_state <= 32'b0;
-        r_start_fetch <= 1'h1;
+        if (i_m_interrupt) //received interrupt
+          r_state <= 32'd2;
+        else if (i_s_interrupt)
+          r_state <= 32'd3;
+        else begin
+          r_state <= 32'b0;
+          r_start_fetch <= 1'h1;
+        end
       end
     end
 
     else begin // Any other instruction
-      r_state <= 32'b0;
-      r_start_fetch <= 1'h1;
+      if (i_m_interrupt) //received interrupt
+        r_state <= 32'd2;
+      else if (i_s_interrupt)
+        r_state <= 32'd3;
+      else begin
+        r_state <= 32'b0;
+        r_start_fetch <= 1'h1;
+      end
     end
-
-    if (i_m_interrupt) //received interrupt
-      r_state <= 32'd2;
-    else if (i_s_interrupt)
-      r_state <= 32'd3;
 
   end
 

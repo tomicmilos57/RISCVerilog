@@ -13,6 +13,7 @@ src/CPU/program_counter.v
 src/CPU/register_file.v
 src/CPU/CSR_file.v
 src/CPU/clint.v
+src/CPU/timer.v
 src/Memory/memory_top.v
 src/Memory/memory_map.v
 src/Memory/cache_altera.v

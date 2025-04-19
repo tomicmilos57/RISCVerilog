@@ -23,6 +23,8 @@ module alu (
     i_mtvec,
     i_stvec,
 
+    o_exception_ecall,
+    o_exception_ebreak,
     o_interrupt_finnished
 );
 
@@ -54,6 +56,8 @@ module alu (
   input [31:0] i_mtvec;
   input [31:0] i_stvec;
 
+  output reg o_exception_ecall;
+  output reg o_exception_ebreak;
   output reg o_interrupt_finnished;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -233,6 +237,8 @@ module alu (
     o_jump_DV_comb <= 1'd0;
     r_load_regfile <= 1'd0;
     r_csr_load <= 1'b0;
+    o_exception_ecall <= 1'b0;
+    o_exception_ebreak <= 1'b0;
     if (i_state == 32'd1)
       case (i_instruction)
 
@@ -449,16 +455,14 @@ module alu (
           r_load_regfile <= 1'd1;
         end
         32'd51: begin  // FENCE
-          r_load_regfile <= 1'd0;
         end
         32'd52: begin  // FENCE.I
-          r_load_regfile <= 1'd0;
         end
         32'd53: begin  // ECALL
-          r_load_regfile <= 1'd0;
+          o_exception_ecall <= 1'b1;
         end
         32'd54: begin  // EBREAK
-          r_load_regfile <= 1'd0;
+          o_exception_ebreak <= 1'b1;
         end
         32'd55: begin  // URET
           r_load_regfile <= 1'd0;
@@ -470,10 +474,8 @@ module alu (
           r_load_regfile <= 1'd0;
         end
         32'd58: begin  // WFI
-          r_load_regfile <= 1'd0;
         end
         32'd59: begin  // SFENCE.VMA
-          r_load_regfile <= 1'd0;
         end
         default: ;
       endcase

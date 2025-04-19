@@ -47,6 +47,8 @@ module CPU_top (
   wire        w_alu_to_csr_load;
   wire [31:0] w_alu_to_csr_data;
 
+  wire w_exception_ecall;
+  wire w_exception_ebreak;
   wire w_interrupt_finnished;
 
   //MEM CONTROLER
@@ -207,6 +209,8 @@ module CPU_top (
       .i_mtvec(w_mtvec),
       .i_stvec(w_stvec),
 
+      .o_exception_ecall(w_exception_ecall),
+      .o_exception_ebreak(w_exception_ebreak),
       .o_interrupt_finnished(w_interrupt_finnished)
   );
 
@@ -276,11 +280,12 @@ module CPU_top (
   //  Core Local Interruptor (CLINT)
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+  wire w_timer_int;
   clint m_CLINT(
-      .i_ECALL(),
-      .i_EBREAK(),
+      .i_ECALL(w_exception_ecall),
+      .i_EBREAK(w_exception_ebreak),
 
-      .i_timer_int(),
+      .i_timer_int(w_timer_int),
 
       .o_s_interrupt(w_s_interrupt),
       .o_m_interrupt(w_m_interrupt),
@@ -292,6 +297,12 @@ module CPU_top (
       .mie(w_mie),
       .sie(w_sie)
 
+  );
+
+  timer m_timer(
+      .i_clk(i_clk),
+      .i_ack(w_interrupt_finnished),
+      .o_int(w_timer_int)
   );
 
 endmodule
