@@ -110,6 +110,9 @@ module alu (
   wire w_new_sstatus = {i_sstatus[31:9], r_mode[0], i_sstatus[7:6], i_sstatus[1],
     i_sstatus[4:2], 1'b0, i_sstatus[0]};
 
+  wire w_new_ret_mstatus = {i_mstatus[31:4], i_mstatus[7], i_mstatus[2:0]};
+  wire w_new_ret_sstatus = {i_sstatus[31:2], i_sstatus[5], i_sstatus[0]};
+
   reg r_interrupt_state = 1'b0;
   localparam MSTATUS_CODE = 12'h300;
   localparam MEPC_CODE = 12'h341;
@@ -126,7 +129,8 @@ module alu (
   assign o_csr_load   = INT ? r_INT_csr_load : r_csr_load;
 
   reg [11:0] r_INT_csr_select = 12'b0;
-  assign o_csr_select = INT ? r_INT_csr_select : i_IR[31:20];
+  reg [11:0] r_csr_select = 12'b0;
+  assign o_csr_select = INT ? r_INT_csr_select : r_csr_select;
 
   wire [31:0] w_ze_imm_csr = {27'd0, i_IR[19:15]};
 
@@ -239,6 +243,7 @@ module alu (
     r_csr_load <= 1'b0;
     o_exception_ecall <= 1'b0;
     o_exception_ebreak <= 1'b0;
+    r_csr_select <= 12'b0;
     if (i_state == 32'd1)
       case (i_instruction)
 
@@ -421,36 +426,42 @@ module alu (
         32'd45: begin  // CSRRW
           r_csr_result <= i_A;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
         32'd46: begin  // CSRRS
           r_csr_result <= i_csr_reg | i_A;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
         32'd47: begin  // CSRRC
           r_csr_result <= i_csr_reg & ~i_A;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
         32'd48: begin  // CSRRWI
           r_csr_result <= w_ze_imm_csr;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
         32'd49: begin  // CSRRSI
           r_csr_result <= i_csr_reg | w_ze_imm_csr;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
         32'd50: begin  // CSRRCI
           r_csr_result <= i_csr_reg & ~w_ze_imm_csr;
           r_csr_load <= 1'b1;
+          r_csr_select <= i_IR[31:20];
           r_result <= i_csr_reg;
           r_load_regfile <= 1'd1;
         end
@@ -465,13 +476,24 @@ module alu (
           o_exception_ebreak <= 1'b1;
         end
         32'd55: begin  // URET
-          r_load_regfile <= 1'd0;
         end
         32'd56: begin  // SRET
-          r_load_regfile <= 1'd0;
+          r_mode <= {1'b0, i_sstatus[8]};
+          r_csr_result <= w_new_ret_sstatus;
+          r_csr_select <= SSTATUS_CODE;
+          r_csr_load <= 1'b1;
+
+          o_jump_DV_comb <= 1'd1;
+          r_address <= i_sepc;
         end
         32'd57: begin  // MRET
-          r_load_regfile <= 1'd0;
+          r_mode <= i_mstatus[12:11];
+          r_csr_result <= w_new_ret_mstatus;
+          r_csr_select <= MSTATUS_CODE;
+          r_csr_load <= 1'b1;
+
+          o_jump_DV_comb <= 1'd1;
+          r_address <= i_mepc;
         end
         32'd58: begin  // WFI
         end
