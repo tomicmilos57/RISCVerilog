@@ -5,7 +5,7 @@ module load_store (
   input wire [31:0] i_regout2,
   input wire [31:0] i_PC,
   input wire [31:0] i_IR,
-  input wire        i_state,
+  input wire [31:0] i_state,
   input wire        i_input_bus_DV,
   input wire [31:0] i_input_bus_data,
   input wire        i_start_fetch,
@@ -40,7 +40,7 @@ localparam integer WAITING = 1'b1;
 
 integer integer_number_of_fetch = 32'd0; //ONLY FOR SIMULATION
 
-assign o_ld_st_finnished = (i_instruction >= 32'd27 & i_instruction <= 32'd34) & i_state == 1'b1 &
+assign o_ld_st_finnished = (i_instruction >= 32'd27 & i_instruction <= 32'd34) & i_state == 32'd1 &
   r_local_state == WAITING & i_input_bus_DV == 1'b1;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -51,7 +51,7 @@ always @(posedge i_clk) begin
   o_bus_DV <= 1'b0;
   o_loaded_value_DV <= 1'b0;
   o_IR_DV <= 1'b0;
-  if(i_state == 1'b0)begin //FETCH PHASE
+  if(i_state == 32'b0)begin //FETCH PHASE
 
       if(r_local_state == READY & (i_start_fetch | r_first_fetch))begin
         r_first_fetch <= 1'b0;

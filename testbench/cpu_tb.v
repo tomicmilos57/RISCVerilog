@@ -15,7 +15,7 @@ wire [2:0] w_output_bhw;
 wire w_output_write_notread;
 wire [1023:0] w_regs;
 wire [31:0] w_reg;
-wire w_state;
+wire [31:0] w_state;
 wire [31:0] w_PC;
 wire [31:0] w_IR;
 wire [31:0] w_instruction;

@@ -8,7 +8,7 @@ module CPU_top (
     output [   2:0] o_bhw,
     output          o_write_notread,
     output [1023:0] o_regs,
-    output          o_state,
+    output [  31:0] o_state,
     output [  31:0] o_PC,
     output [  31:0] o_IR,
     output [  31:0] o_instruction
@@ -28,13 +28,13 @@ module CPU_top (
   wire w_jump_DV;
 
   //STATE MACHINE
-  wire w_state;
+  wire [31:0] w_state;
   assign o_state = w_state;
   wire w_load_PC;
   wire w_start_fetch;
 
-  wire FETCH = w_state == 1'h0;
-  wire EXECUTE = w_state == 1'h1;
+  wire FETCH = w_state == 32'b0;
+  wire EXECUTE = w_state == 32'd1;
 
   //ALU
   wire [31:0] w_ALU_out;
@@ -46,6 +46,8 @@ module CPU_top (
   wire [11:0] w_alu_to_csr_select;
   wire        w_alu_to_csr_load;
   wire [31:0] w_alu_to_csr_data;
+
+  wire w_interrupt_finnished;
 
   //MEM CONTROLER
   wire [31:0] w_bus_data;
@@ -104,6 +106,11 @@ module CPU_top (
   wire [31:0] w_sscratch;
   wire [31:0] w_mscratch;
 
+  //CLINT
+  wire w_s_interrupt;
+  wire w_m_interrupt;
+
+
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Instruction Register
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -146,7 +153,11 @@ module CPU_top (
       .o_load_PC(w_load_PC),
       .i_div_rem_finnished(w_alu_requests_load_to_regfile),
       .o_state(w_state),
-      .o_start_fetch(w_start_fetch)
+      .o_start_fetch(w_start_fetch),
+      
+      .i_s_interrupt(w_s_interrupt),
+      .i_m_interrupt(w_m_interrupt),
+      .i_interrupt_finnished(w_interrupt_finnished)
   );
 
 
@@ -187,7 +198,16 @@ module CPU_top (
       .i_csr_reg(w_csr_regout),
       .o_csr_select(w_alu_to_csr_select),
       .o_csr_load(w_alu_to_csr_load),
-      .o_csr_data(w_alu_to_csr_data)
+      .o_csr_data(w_alu_to_csr_data),
+
+      .i_mstatus(w_mstatus),
+      .i_sstatus(w_sstatus),
+      .i_mepc(w_mepc),
+      .i_sepc(w_sepc),
+      .i_mtvec(w_mtvec),
+      .i_stvec(w_stvec),
+
+      .o_interrupt_finnished(w_interrupt_finnished)
   );
 
 
@@ -252,5 +272,26 @@ module CPU_top (
       .o_mscratch(w_mscratch)
   );
 
+  // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+  //  Core Local Interruptor (CLINT)
+  // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+  clint m_CLINT(
+      .i_ECALL(),
+      .i_EBREAK(),
+
+      .i_timer_int(),
+
+      .o_s_interrupt(w_s_interrupt),
+      .o_m_interrupt(w_m_interrupt),
+
+      .mideleg(w_mideleg),
+      .medeleg(w_medeleg),
+      .mstatus(w_mstatus),
+      .sstatus(w_sstatus),
+      .mie(w_mie),
+      .sie(w_sie)
+
+  );
 
 endmodule

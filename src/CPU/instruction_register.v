@@ -15,7 +15,7 @@ module instruction_register (
   input clk;
   input [31:0] in;
   input valid;
-  input state;
+  input [31:0] state;
   output [31:0] out;
   output [31:0] instruction;
   output o_fetch_over;
@@ -33,8 +33,8 @@ module instruction_register (
   reg r_fetch_over = 1'b0;
   assign o_fetch_over = r_fetch_over;
 
-  wire FETCH = state == 1'h0;
-  wire EXECUTE = state == 1'h1;
+  wire FETCH = state == 32'h0;
+  wire EXECUTE = state == 32'd1;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Sequential Logic
