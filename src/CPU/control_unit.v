@@ -35,6 +35,7 @@ wire SINT = r_state == 32'd3; //Supervisor interrupt
 
 assign o_load_PC = (w_load_store_instruction & i_bus_DV & EXECUTE) |
   (w_div_rem_instruction & i_div_rem_finnished & EXECUTE) |
+  (i_interrupt_finnished & (MINT | SINT)) |
   EXECUTE & ~(w_load_store_instruction | w_div_rem_instruction);
 
 reg r_start_fetch = 1'h0;
@@ -93,12 +94,15 @@ always @(posedge i_clk)begin
   end
 
   else if(MINT)
-    if(i_interrupt_finnished)
+    if(i_interrupt_finnished) begin
       r_state <= 32'b0;
-
+      r_start_fetch <= 1'h1;
+    end
   else if(SINT)
-    if(i_interrupt_finnished)
+    if(i_interrupt_finnished) begin
       r_state <= 32'b0;
+      r_start_fetch <= 1'h1;
+    end
 
 end
 

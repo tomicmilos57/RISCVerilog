@@ -105,13 +105,13 @@ module alu (
 
   reg [1:0] r_mode = MACHINE_MODE;
 
-  wire w_new_mstatus = {i_mstatus[31:13], r_mode, i_mstatus[10:8], i_mstatus[3],
+  wire [31:0] w_new_mstatus = {i_mstatus[31:13], r_mode, i_mstatus[10:8], i_mstatus[3],
     i_mstatus[6:4], 1'b0, i_mstatus[2:0]};
-  wire w_new_sstatus = {i_sstatus[31:9], r_mode[0], i_sstatus[7:6], i_sstatus[1],
+  wire [31:0] w_new_sstatus = {i_sstatus[31:9], r_mode[0], i_sstatus[7:6], i_sstatus[1],
     i_sstatus[4:2], 1'b0, i_sstatus[0]};
 
-  wire w_new_ret_mstatus = {i_mstatus[31:4], i_mstatus[7], i_mstatus[2:0]};
-  wire w_new_ret_sstatus = {i_sstatus[31:2], i_sstatus[5], i_sstatus[0]};
+  wire [31:0] w_new_ret_mstatus = {i_mstatus[31:4], i_mstatus[7], i_mstatus[2:0]};
+  wire [31:0] w_new_ret_sstatus = {i_sstatus[31:2], i_sstatus[5], i_sstatus[0]};
 
   reg r_interrupt_state = 1'b0;
   localparam MSTATUS_CODE = 12'h300;
