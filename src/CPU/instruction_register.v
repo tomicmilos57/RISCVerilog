@@ -111,28 +111,24 @@ module instruction_register (
         // U-type instructions (opcode = 0010111)
         r_instruction = 32'd44;  // AUIPC
       end else if (in[6:0] == 7'b1110011) begin
-        // CSR Instructions (opcode = 1110011)
+        // CSR Instructions
         if (in[14:12] == 3'b001) r_instruction = 32'd45;  // CSRRW
         else if (in[14:12] == 3'b010) r_instruction = 32'd46;  // CSRRS
         else if (in[14:12] == 3'b011) r_instruction = 32'd47;  // CSRRC
         else if (in[14:12] == 3'b101) r_instruction = 32'd48;  // CSRRWI
         else if (in[14:12] == 3'b110) r_instruction = 32'd49;  // CSRRSI
         else if (in[14:12] == 3'b111) r_instruction = 32'd50;  // CSRRCI
-      end else if (in[6:0] == 7'b0001111) begin
-        // FENCE Instructions (opcode = 0001111)
-        if (in[31:25] == 7'b0000000) r_instruction = 32'd51;  // FENCE
-        else if (in[31:25] == 7'b0000001) r_instruction = 32'd52;  // FENCE.I
-      end else if (in[6:0] == 7'b1110011) begin
-        // ECALL, EBREAK, URET, SRET, MRET, WFI, SFENCE.VMA Instructions (opcode = 1110011)
-        if (in[14:12] == 3'b000) begin
+      
+        // System Instructions
+        else if (in[14:12] == 3'b000) begin
           if (in[31:20] == 12'b000000000000) r_instruction = 32'd53;  // ECALL
-          else r_instruction = 32'd54;  // EBREAK
-        end else if (in[14:12] == 3'b100) r_instruction = 32'd55;  // URET
-        else if (in[14:12] == 3'b101) r_instruction = 32'd56;  // SRET
-        else if (in[14:12] == 3'b110) r_instruction = 32'd57;  // MRET
-        else if (in[14:12] == 3'b111) r_instruction = 32'd58;  // WFI
-        else if (in[14:12] == 3'b100 && in[31:25] == 7'b0000000)
-          r_instruction = 32'd59;  // SFENCE.VMA
+          else if (in[31:20] == 12'b000000000001) r_instruction = 32'd54;  // EBREAK
+          else r_instruction = 32'd255;  // Unknown system instruction
+        end else if (in[14:12] == 3'b100 && in[31:20] == 12'b000000000010) r_instruction = 32'd255;  // URET
+        else if (in[14:12] == 3'b101 && in[31:20] == 12'b000100000010) r_instruction = 32'd56;  // SRET
+        else if (in[14:12] == 3'b110 && in[31:20] == 12'b001100000010) r_instruction = 32'd57;  // MRET
+        else if (in[14:12] == 3'b111 && in[31:20] == 12'b000100000101) r_instruction = 32'd58;  // WFI
+        else if (in[14:12] == 3'b000 && in[31:25] == 7'b0001001) r_instruction = 32'd59;  // SFENCE.VMA
       end else begin
         r_instruction = 32'd255;  // Unknown or unsupported instruction
       end
