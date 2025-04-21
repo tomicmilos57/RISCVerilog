@@ -1,4 +1,6 @@
-`define SIMULATION
+//`define SIMULATION
+`define XV6
+//`define DEBUG
 module cpu_tb;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -116,6 +118,9 @@ defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.
 `endif
 defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 
+`ifdef XV6
+defparam memory.xv6_mem.altsyncram_component.init_file = "../misc/xv6.mif";
+`endif
 
 wire [3:0] w_red;
 wire [3:0] w_green;
@@ -248,5 +253,68 @@ always @(w_instruction)
   $display("%d", $time);
   $finish;
 end
+
+`ifdef XV6
+always @(posedge (w_state == 32'b0))begin
+	`ifdef DEBUG
+    $display("PC: %h", cpu.w_PC);
+    $display("IR: %h", cpu.w_IR);
+
+    $display("x0  (zero): %h", cpu.m_RegFile.reg0);
+    $display("x1  (ra):   %h", cpu.m_RegFile.reg1);
+    $display("x2  (sp):   %h", cpu.m_RegFile.reg2);
+    $display("x3  (gp):   %h", cpu.m_RegFile.reg3);
+    $display("x4  (tp):   %h", cpu.m_RegFile.reg4);
+    $display("x5  (t0):   %h", cpu.m_RegFile.reg5);
+    $display("x6  (t1):   %h", cpu.m_RegFile.reg6);
+    $display("x7  (t2):   %h", cpu.m_RegFile.reg7);
+    $display("x8  (s0/fp):%h", cpu.m_RegFile.reg8);
+    $display("x9  (s1):   %h", cpu.m_RegFile.reg9);
+    $display("x10 (a0):   %h", cpu.m_RegFile.reg10);
+    $display("x11 (a1):   %h", cpu.m_RegFile.reg11);
+    $display("x12 (a2):   %h", cpu.m_RegFile.reg12);
+    $display("x13 (a3):   %h", cpu.m_RegFile.reg13);
+    $display("x14 (a4):   %h", cpu.m_RegFile.reg14);
+    $display("x15 (a5):   %h", cpu.m_RegFile.reg15);
+    $display("x16 (a6):   %h", cpu.m_RegFile.reg16);
+    $display("x17 (a7):   %h", cpu.m_RegFile.reg17);
+    $display("x18 (s2):   %h", cpu.m_RegFile.reg18);
+    $display("x19 (s3):   %h", cpu.m_RegFile.reg19);
+    $display("x20 (s4):   %h", cpu.m_RegFile.reg20);
+    $display("x21 (s5):   %h", cpu.m_RegFile.reg21);
+    $display("x22 (s6):   %h", cpu.m_RegFile.reg22);
+    $display("x23 (s7):   %h", cpu.m_RegFile.reg23);
+    $display("x24 (s8):   %h", cpu.m_RegFile.reg24);
+    $display("x25 (s9):   %h", cpu.m_RegFile.reg25);
+    $display("x26 (s10):  %h", cpu.m_RegFile.reg26);
+    $display("x27 (s11):  %h", cpu.m_RegFile.reg27);
+    $display("x28 (t3):   %h", cpu.m_RegFile.reg28);
+    $display("x29 (t4):   %h", cpu.m_RegFile.reg29);
+    $display("x30 (t5):   %h", cpu.m_RegFile.reg30);
+    $display("x31 (t6):   %h", cpu.m_RegFile.reg31);
+
+    $display("mhartid:    %h", cpu.m_CSR_file.r_mhartid);
+    $display("mstatus:    %h", cpu.m_CSR_file.r_mstatus);
+    $display("mepc:       %h", cpu.m_CSR_file.r_mepc);
+    $display("mie:        %h", cpu.m_CSR_file.r_mie);
+    $display("sstatus:    %h", cpu.m_CSR_file.r_sstatus);
+    $display("sepc:       %h", cpu.m_CSR_file.r_sepc);
+    $display("sie:        %h", cpu.m_CSR_file.r_sie);
+    $display("sip:        %h", cpu.m_CSR_file.r_sip);
+    $display("medeleg:    %h", cpu.m_CSR_file.r_medeleg);
+    $display("mideleg:    %h", cpu.m_CSR_file.r_mideleg);
+    $display("stvec:      %h", cpu.m_CSR_file.r_stvec);
+    $display("mtvec:      %h", cpu.m_CSR_file.r_mtvec);
+    $display("satp:       %h", cpu.m_CSR_file.r_satp);
+    $display("scause:     %h", cpu.m_CSR_file.r_scause);
+    $display("stval:      %h", cpu.m_CSR_file.r_stval);
+    $display("mcounteren: %h", cpu.m_CSR_file.r_mcounteren);
+    $display("time:       %h", cpu.m_CSR_file.r_time);
+    $display("sscratch:   %h", cpu.m_CSR_file.r_sscratch);
+    $display("mscratch:   %h", cpu.m_CSR_file.r_mscratch);
+    $stop;
+	`endif
+end
+`endif
 
 endmodule

@@ -1,4 +1,5 @@
 /misc/bootloader.ver
 /misc/GPUINIT.ver
 /misc/test.ver
+/misc/xv6.ver
 .nvim
