@@ -53,7 +53,6 @@ always @(posedge i_clk) begin
       if (i_write && i_address < 6) begin
         mem[i_address] <= i_data;
         if (i_address == RHR) begin
-          $write("\nTEST\n");
           $write("%c", i_data);
         end
       end

@@ -25,6 +25,7 @@ input i_interrupt_finnished;
 
 wire w_load_store_instruction = i_instruction >= 32'd27 & i_instruction <= 32'd34;
 wire w_div_rem_instruction = i_instruction >= 32'd14 && i_instruction <= 32'd17;
+wire w_amo_instruction = i_instruction == 32'd60;
 
 reg [31:0] r_state = 32'b0;
 assign o_state = r_state;
@@ -36,8 +37,9 @@ wire SINT = r_state == 32'd3; //Supervisor interrupt
 
 assign o_load_PC = (w_load_store_instruction & i_bus_DV & EXECUTE) |
   (w_div_rem_instruction & i_div_rem_finnished & EXECUTE) |
+  (w_amo_instruction & i_amo_finnished & EXECUTE) |
   (i_interrupt_finnished & (MINT | SINT)) |
-  EXECUTE & ~(w_load_store_instruction | w_div_rem_instruction);
+  EXECUTE & ~(w_load_store_instruction | w_div_rem_instruction | w_amo_instruction);
 
 reg r_start_fetch = 1'h0;
 assign o_start_fetch = r_start_fetch;

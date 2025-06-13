@@ -45,12 +45,13 @@ assign o_ld_st_finnished = (i_instruction >= 32'd27 & i_instruction <= 32'd34) &
   r_local_state == WAITING & i_input_bus_DV == 1'b1;
 
 //AMOSWAP
-localparam integer AMO_READY_LOAD = 2'b00;
-localparam integer AMO_WAITING_LOAD = 2'b01;
-localparam integer AMO_READY_WRITE = 2'b10;
-localparam integer AMO_WAITING_WRITE = 2'b11;
+localparam integer AMO_READY_LOAD = 32'd0;
+localparam integer AMO_WAITING_LOAD = 32'd1;
+localparam integer AMO_READY_WRITE = 32'd2;
+localparam integer AMO_WAITING_WRITE = 32'd3;
+localparam integer AMO_STANDBY = 32'd4;
 
-reg [1:0] r_amo_local_state = 2'b00;
+reg [31:0] r_amo_local_state = 32'b0;
 reg [31:0] r_amo_address = 32'b0;
 reg [31:0] r_amo_value = 32'b0;
 reg r_amo_finnished = 1'b0;
@@ -276,10 +277,15 @@ always @(posedge i_clk) begin
 
       else if(r_amo_local_state == AMO_WAITING_WRITE)begin
         if(i_input_bus_DV == 1'b1) begin
-          r_amo_local_state <= AMO_READY_LOAD;
+          r_amo_local_state <= AMO_STANDBY;
           r_amo_finnished <= 1'b1;
         end
       end
+
+      if (r_amo_local_state == AMO_STANDBY) begin
+        r_amo_local_state <= AMO_READY_LOAD;
+      end
+
 
     end
     default: ;

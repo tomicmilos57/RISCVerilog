@@ -128,6 +128,10 @@ module instruction_register (
         else if (in[31:0] == 32'h12000073) r_instruction = 32'd59;  // SFENCE.VMA
       end else if (in[6:0] == 7'b0101111) begin
         if (in[14:12] == 3'b010 && in[31:27] == 5'b00001) r_instruction = 32'd60; //AMOSWAP
+      end
+      else if (in[6:0] == 7'b0001111) begin
+        if (in[14:12] == 3'b000) r_instruction = 32'd51;  // FENCE
+        else if (in[14:12] == 3'b001) r_instruction = 32'd52;  // FENCE.I
       end else begin
         r_instruction = 32'd255;  // Unknown or unsupported instruction
       end
