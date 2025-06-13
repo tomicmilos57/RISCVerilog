@@ -121,6 +121,12 @@ module memory_top (
   wire [7:0] w_xv6_data_byte;
   // xv6 wires and regs
 
+  // uart wires and regs
+  wire w_uart_DV;
+  wire w_uart_receive;
+  wire [7:0] w_uart_data_byte;
+  // uart wires and regs
+
   // Global wires and regs
   wire [7:0] w_read_data;  //This register holds data read from submodule that is currently selected
   assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
@@ -132,6 +138,7 @@ module memory_top (
                      (w_test_receive & w_test_DV) ? w_test_data_byte :
                      (w_sd_card_receive & w_sd_card_DV) ? w_sd_card_data_byte :
                      (w_xv6_receive & w_xv6_DV) ? w_xv6_data_byte :
+                     (w_uart_receive & w_uart_DV) ? w_uart_data_byte :
                      8'h00;
 
   wire w_global_receive;
@@ -143,7 +150,8 @@ module memory_top (
                           w_ps2_receive |
                           w_test_receive |
                           w_sd_card_receive |
-                          w_xv6_receive;
+                          w_xv6_receive |
+                          w_uart_receive;
 
   // global data to submodule
   wire [7:0] w_data_to_submodule;
@@ -178,7 +186,8 @@ module memory_top (
       .o_hex_DV(w_hex_DV),
       .o_test_DV(w_test_DV),
       .o_sd_card_DV(w_sd_card_DV),
-      .o_xv6_DV(w_xv6_DV)
+      .o_xv6_DV(w_xv6_DV),
+      .o_uart_DV(w_uart_DV)
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -370,6 +379,15 @@ module memory_top (
       .o_data_DV(w_xv6_receive)
   );
 
+  uart m_uart (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[2:0]),
+      .i_write(w_write),
+      .i_request(w_uart_DV & r_request),
+      .o_data(w_uart_data_byte),
+      .o_data_DV(w_uart_receive)
+  );
   `endif
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
