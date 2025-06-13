@@ -126,6 +126,8 @@ module instruction_register (
         else if (in[31:0] == 32'h30200073) r_instruction = 32'd57;  // MRET
         else if (in[31:0] == 32'h10500073) r_instruction = 32'd58;  // WFI
         else if (in[31:0] == 32'h12000073) r_instruction = 32'd59;  // SFENCE.VMA
+      end else if (in[6:0] == 7'b0101111) begin
+        if (in[14:12] == 3'b010 && in[31:27] == 5'b00001) r_instruction = 32'd60; //AMOSWAP
       end else begin
         r_instruction = 32'd255;  // Unknown or unsupported instruction
       end
