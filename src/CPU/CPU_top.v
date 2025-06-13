@@ -71,6 +71,7 @@ module CPU_top (
   wire w_IR_DV;
 
   wire w_ld_st_finnished;
+  wire w_amo_finnished;
 
   //REGFILE
   wire [31:0] w_input_regfile = (w_alu_exec) ? w_ALU_out :
@@ -151,6 +152,7 @@ module CPU_top (
   control_unit m_State (
       .i_clk(i_clk),
       .i_bus_DV((w_fetch_over & w_instruction != 32'd255) | w_ld_st_finnished),
+      .i_amo_finnished(w_amo_finnished),
       .i_instruction(w_instruction),
       .o_load_PC(w_load_PC),
       .i_div_rem_finnished(w_alu_requests_load_to_regfile),
@@ -240,7 +242,8 @@ module CPU_top (
       .o_loaded_value_DV(w_loaded_value_from_memory_DV),
       .o_IR_value(w_IR_value),
       .o_IR_DV(w_IR_DV),
-      .i_start_fetch(w_start_fetch)
+      .i_start_fetch(w_start_fetch),
+      .o_amo_finnished(w_amo_finnished)
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==

@@ -1,4 +1,4 @@
-module control_unit(i_clk, i_bus_DV, i_instruction, i_div_rem_finnished,
+module control_unit(i_clk, i_bus_DV, i_amo_finnished, i_instruction, i_div_rem_finnished,
   i_s_interrupt, i_m_interrupt, i_interrupt_finnished,
   o_load_PC, o_state, o_start_fetch);
 
@@ -8,6 +8,7 @@ module control_unit(i_clk, i_bus_DV, i_instruction, i_div_rem_finnished,
 
 input i_clk;
 input i_bus_DV;
+input i_amo_finnished;
 input [31:0] i_instruction;
 input i_div_rem_finnished;
 output o_load_PC;
@@ -69,6 +70,19 @@ always @(posedge i_clk)begin
 
     else if(i_instruction >= 32'd27 && i_instruction <= 32'd34)begin //Load and Store instructions
       if(i_bus_DV) begin // value received from memory
+        if (i_m_interrupt) //received interrupt
+          r_state <= 32'd2;
+        else if (i_s_interrupt)
+          r_state <= 32'd3;
+        else begin
+          r_state <= 32'b0;
+          r_start_fetch <= 1'h1;
+        end
+      end
+    end
+
+    else if(i_instruction == 32'd60)begin //AMOSWAP
+      if(i_amo_finnished) begin // AMOSWAP finnished
         if (i_m_interrupt) //received interrupt
           r_state <= 32'd2;
         else if (i_s_interrupt)

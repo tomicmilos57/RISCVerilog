@@ -22,7 +22,8 @@ module load_store (
   output reg [31:0] o_IR_value = 32'd0,
   output reg        o_IR_DV = 1'd0,
 
-  output            o_ld_st_finnished
+  output            o_ld_st_finnished,
+  output            o_amo_finnished
 );
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -43,6 +44,18 @@ integer integer_number_of_fetch = 32'd0; //ONLY FOR SIMULATION
 assign o_ld_st_finnished = (i_instruction >= 32'd27 & i_instruction <= 32'd34) & i_state == 32'd1 &
   r_local_state == WAITING & i_input_bus_DV == 1'b1;
 
+//AMOSWAP
+localparam integer AMO_READY_LOAD = 2'b00;
+localparam integer AMO_WAITING_LOAD = 2'b01;
+localparam integer AMO_READY_WRITE = 2'b10;
+localparam integer AMO_WAITING_WRITE = 2'b11;
+
+reg [1:0] r_amo_local_state = 2'b00;
+reg [31:0] r_amo_address = 32'b0;
+reg [31:0] r_amo_value = 32'b0;
+reg r_amo_finnished = 1'b0;
+assign o_amo_finnished = r_amo_finnished;
+
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -51,6 +64,8 @@ always @(posedge i_clk) begin
   o_bus_DV <= 1'b0;
   o_loaded_value_DV <= 1'b0;
   o_IR_DV <= 1'b0;
+  r_amo_finnished <= 1'b0;
+
   if(i_state == 32'b0)begin //FETCH PHASE
 
       if(r_local_state == READY & (i_start_fetch | r_first_fetch))begin
@@ -227,6 +242,46 @@ always @(posedge i_clk) begin
 
     end
 
+    32'd60: begin //AMOSWAP
+
+      //LOAD
+      if(r_amo_local_state == AMO_READY_LOAD)begin
+        r_amo_address <= i_regout1;
+        r_amo_value <= i_regout2;
+
+        o_bhw <= 3'b100;
+        o_bus_address <= i_regout1;
+        o_write_notread <= 1'b0;
+        o_bus_DV <= 1'b1;
+        r_amo_local_state <= AMO_WAITING_LOAD;
+      end
+
+      else if(r_amo_local_state == AMO_WAITING_LOAD)begin
+        if(i_input_bus_DV == 1'b1) begin
+          o_loaded_value <= i_input_bus_data;
+          o_loaded_value_DV <= 1'b1;
+          r_amo_local_state <= AMO_READY_WRITE;
+        end
+      end
+
+      //STORE
+      if(r_amo_local_state == AMO_READY_WRITE)begin
+        o_bhw <= 3'b100;
+        o_bus_address <= r_amo_address;
+        o_bus_data <= r_amo_value;
+        o_write_notread <= 1'b1;
+        o_bus_DV <= 1'b1;
+        r_amo_local_state <= AMO_WAITING_WRITE;
+      end
+
+      else if(r_amo_local_state == AMO_WAITING_WRITE)begin
+        if(i_input_bus_DV == 1'b1) begin
+          r_amo_local_state <= AMO_READY_LOAD;
+          r_amo_finnished <= 1'b1;
+        end
+      end
+
+    end
     default: ;
   endcase
   // $display("LoadStr, ADDR = %h, DATA = %h, numOfFetch = %d", i_regout1 + w_se_load_offset,
