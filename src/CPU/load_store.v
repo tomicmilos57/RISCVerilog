@@ -243,7 +243,12 @@ task automatic handle_amoswap;
         r_amo_address <= addr;
         r_amo_value <= value;
         start_bus_read(3'b100, addr);
-        r_amo_local_state <= AMO_WAITING_LOAD;
+        if (i_satp == 0) begin
+          r_amo_local_state <= AMO_WAITING_LOAD;
+        end
+        else if (mmu_state == MMU_STATE3) begin
+          r_amo_local_state <= AMO_WAITING_LOAD;
+        end
       end
 
       AMO_WAITING_LOAD: begin
@@ -256,7 +261,12 @@ task automatic handle_amoswap;
 
       AMO_READY_WRITE: begin
         start_bus_write(3'b100, r_amo_address, r_amo_value);
-        r_amo_local_state <= AMO_WAITING_WRITE;
+        if (i_satp == 0) begin
+          r_amo_local_state <= AMO_WAITING_WRITE;
+        end
+        else if (mmu_state == MMU_STATE3) begin
+          r_amo_local_state <= AMO_WAITING_WRITE;
+        end
       end
 
       AMO_WAITING_WRITE: begin
