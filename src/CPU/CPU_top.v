@@ -243,7 +243,9 @@ module CPU_top (
       .o_IR_value(w_IR_value),
       .o_IR_DV(w_IR_DV),
       .i_start_fetch(w_start_fetch),
-      .o_amo_finnished(w_amo_finnished)
+      .o_amo_finnished(w_amo_finnished),
+
+      .i_satp(w_satp)
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
