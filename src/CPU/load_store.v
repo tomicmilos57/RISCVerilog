@@ -73,18 +73,49 @@ localparam OPCODE_SW     = 32'd34;
 localparam OPCODE_AMOSWAP= 32'd60;
 
 always @(posedge i_clk) begin
-  // Default resets
   o_bus_DV           <= 1'b0;
   o_loaded_value_DV  <= 1'b0;
   o_IR_DV            <= 1'b0;
   r_amo_finnished    <= 1'b0;
 
-  // === FETCH PHASE ===
+  //FETCH PHASE
   if (i_state == 32'b0) begin
-    if (r_local_state == READY && (i_start_fetch || r_first_fetch)) begin
+    handle_fetch(i_start_fetch, i_PC);
+  end
+
+  //EXECUTE PHASE
+  else begin
+    case (i_instruction)
+
+      OPCODE_LB:  handle_load(3'b001, i_regout1 + w_se_load_offset, 1'b1, 2'b00);
+      OPCODE_LH:  handle_load(3'b010, i_regout1 + w_se_load_offset, 1'b1, 2'b01);
+      OPCODE_LW:  handle_load(3'b100, $signed(i_regout1) + $signed(w_se_load_offset), 1'b1, 2'b10);
+      OPCODE_LBU: handle_load(3'b001, i_regout1 + w_se_load_offset, 1'b0, 2'b00);
+      OPCODE_LHU: handle_load(3'b010, i_regout1 + w_se_load_offset, 1'b0, 2'b01);
+
+      OPCODE_SB: handle_store(3'b001, i_regout1 + w_se_store_offset, {24'b0, i_regout2[7:0]});
+      OPCODE_SH: handle_store(3'b010, i_regout1 + w_se_store_offset, {16'b0, i_regout2[15:0]});
+      OPCODE_SW: handle_store(3'b100, i_regout1 + w_se_store_offset, i_regout2);
+
+      OPCODE_AMOSWAP: handle_amoswap(i_regout1, i_regout2);
+
+      default: ;
+    endcase
+  end
+end
+
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+//  TASKS
+// ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
+task handle_fetch;
+  input        start_fetch;
+  input [31:0] PC;
+  begin
+    if (r_local_state == READY && (start_fetch || r_first_fetch)) begin
       r_first_fetch <= 1'b0;
       integer_number_of_fetch <= integer_number_of_fetch + 32'd1;
-      start_bus_read(3'b100, i_PC);
+      start_bus_read(3'b100, PC);
       r_local_state <= WAITING;
     end
     else if (r_local_state == WAITING && i_input_bus_DV) begin
@@ -93,140 +124,14 @@ always @(posedge i_clk) begin
       r_local_state <= READY;
     end
   end
-
-  // === EXECUTE PHASE ===
-  else begin
-    case (i_instruction)
-
-      OPCODE_LB: begin
-        if (r_local_state == READY) begin
-          start_bus_read(3'b001, i_regout1 + w_se_load_offset);
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)begin
-          o_loaded_value <= complete_bus_read(i_input_bus_data, 1'b1, 2'b00);
-          o_loaded_value_DV <= 1'b1;
-          r_local_state <= READY;
-        end
-      end
-
-      OPCODE_LH: begin
-        if (r_local_state == READY) begin
-          start_bus_read(3'b010, i_regout1 + w_se_load_offset);
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)begin
-          o_loaded_value <= complete_bus_read(i_input_bus_data, 1'b1, 2'b01);
-          o_loaded_value_DV <= 1'b1;
-          r_local_state <= READY;
-        end
-      end
-
-      OPCODE_LW: begin
-        if (r_local_state == READY) begin
-          start_bus_read(3'b100, $signed(i_regout1) + $signed(w_se_load_offset));
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV) begin
-          o_loaded_value <= i_input_bus_data;
-          o_loaded_value_DV <= 1'b1;
-          r_local_state <= READY;
-        end
-      end
-
-      OPCODE_LBU: begin
-        if (r_local_state == READY) begin
-          start_bus_read(3'b001, i_regout1 + w_se_load_offset);
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)begin
-          o_loaded_value <= complete_bus_read(i_input_bus_data, 1'b0, 2'b00);
-          o_loaded_value_DV <= 1'b1;
-          r_local_state <= READY;
-        end
-      end
-
-      OPCODE_LHU: begin
-        if (r_local_state == READY)begin
-          start_bus_read(3'b010, i_regout1 + w_se_load_offset);
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)begin
-          o_loaded_value <= complete_bus_read(i_input_bus_data, 1'b0, 2'b01);
-          o_loaded_value_DV <= 1'b1;
-          r_local_state <= READY;
-        end
-      end
-
-      OPCODE_SB: begin
-        if (r_local_state == READY)begin
-          start_bus_write(3'b001, i_regout1 + w_se_store_offset, {24'b0, i_regout2[7:0]});
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)
-          r_local_state <= READY;
-      end
-
-      OPCODE_SH: begin
-        if (r_local_state == READY)begin
-          start_bus_write(3'b010, i_regout1 + w_se_store_offset, {16'b0, i_regout2[15:0]});
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)
-          r_local_state <= READY;
-      end
-
-      OPCODE_SW: begin
-        if (r_local_state == READY)begin
-          start_bus_write(3'b100, i_regout1 + w_se_store_offset, i_regout2);
-          r_local_state <= WAITING;
-        end
-        else if (r_local_state == WAITING && i_input_bus_DV)
-          r_local_state <= READY;
-      end
-
-      OPCODE_AMOSWAP: begin
-        // Load phase
-        if (r_amo_local_state == AMO_READY_LOAD) begin
-          r_amo_address <= i_regout1;
-          r_amo_value <= i_regout2;
-          start_bus_read(3'b100, i_regout1);
-          r_amo_local_state <= AMO_WAITING_LOAD;
-        end
-        else if (r_amo_local_state == AMO_WAITING_LOAD && i_input_bus_DV) begin
-          o_loaded_value <= i_input_bus_data;
-          o_loaded_value_DV <= 1'b1;
-          r_amo_local_state <= AMO_READY_WRITE;
-        end
-
-        // Store phase
-        if (r_amo_local_state == AMO_READY_WRITE) begin
-          start_bus_write(3'b100, r_amo_address, r_amo_value);
-          r_amo_local_state <= AMO_WAITING_WRITE;
-        end
-        else if (r_amo_local_state == AMO_WAITING_WRITE && i_input_bus_DV) begin
-          r_amo_local_state <= AMO_STANDBY;
-          r_amo_finnished <= 1'b1;
-        end
-
-        if (r_amo_local_state == AMO_STANDBY)
-          r_amo_local_state <= AMO_READY_LOAD;
-
-      end
-
-      default: ;
-    endcase
-  end
-end
-
-// Tasks
+endtask
 task start_bus_read(input [2:0] bhw, input [31:0] addr);
-begin
-  o_bhw <= bhw;
-  o_bus_address <= addr;
-  o_write_notread <= 1'b0;
-  o_bus_DV <= 1'b1;
-end
+  begin
+    o_bhw <= bhw;
+    o_bus_address <= addr;
+    o_write_notread <= 1'b0;
+    o_bus_DV <= 1'b1;
+  end
 endtask
 
 function [31:0] complete_bus_read;
@@ -243,13 +148,85 @@ function [31:0] complete_bus_read;
 endfunction
 
 task start_bus_write(input [2:0] bhw, input [31:0] addr, input [31:0] data);
-begin
-  o_bhw <= bhw;
-  o_bus_address <= addr;
-  o_bus_data <= data;
-  o_write_notread <= 1'b1;
-  o_bus_DV <= 1'b1;
-end
+  begin
+    o_bhw <= bhw;
+    o_bus_address <= addr;
+    o_bus_data <= data;
+    o_write_notread <= 1'b1;
+    o_bus_DV <= 1'b1;
+  end
+endtask
+
+task handle_load;
+  input [2:0] bhw;
+  input [31:0] addr;
+  input sign_extend;
+  input [1:0] size;
+  begin
+    if (r_local_state == READY) begin
+      start_bus_read(bhw, addr);
+      r_local_state <= WAITING;
+    end
+    else if (r_local_state == WAITING && i_input_bus_DV) begin
+      o_loaded_value <= complete_bus_read(i_input_bus_data, sign_extend, size);
+      o_loaded_value_DV <= 1'b1;
+      r_local_state <= READY;
+    end
+  end
+endtask
+
+task handle_store;
+  input [2:0] bhw;
+  input [31:0] addr;
+  input [31:0] data;
+  begin
+    if (r_local_state == READY) begin
+      start_bus_write(bhw, addr, data);
+      r_local_state <= WAITING;
+    end
+    else if (r_local_state == WAITING && i_input_bus_DV) begin
+      r_local_state <= READY;
+    end
+  end
+endtask
+
+task handle_amoswap;
+  input [31:0] addr;
+  input [31:0] value;
+  begin
+    case (r_amo_local_state)
+      AMO_READY_LOAD: begin
+        r_amo_address <= addr;
+        r_amo_value <= value;
+        start_bus_read(3'b100, addr);
+        r_amo_local_state <= AMO_WAITING_LOAD;
+      end
+
+      AMO_WAITING_LOAD: begin
+        if (i_input_bus_DV) begin
+          o_loaded_value <= i_input_bus_data;
+          o_loaded_value_DV <= 1'b1;
+          r_amo_local_state <= AMO_READY_WRITE;
+        end
+      end
+
+      AMO_READY_WRITE: begin
+        start_bus_write(3'b100, r_amo_address, r_amo_value);
+        r_amo_local_state <= AMO_WAITING_WRITE;
+      end
+
+      AMO_WAITING_WRITE: begin
+        if (i_input_bus_DV) begin
+          r_amo_local_state <= AMO_STANDBY;
+          r_amo_finnished <= 1'b1;
+        end
+      end
+
+      AMO_STANDBY: begin
+        r_amo_local_state <= AMO_READY_LOAD;
+      end
+    endcase
+  end
 endtask
 
 endmodule
