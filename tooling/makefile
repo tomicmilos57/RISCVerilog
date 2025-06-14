@@ -7,7 +7,7 @@ SIMUL_LIB = work
 # 1 (yes) -> override timescale
 # 0 (no)  -> do NOT override timescale
 SIMUL_IS_TIMESCALE_OVERRIDEN = 1
-SIMUL_TIMESCALE = "1 ps / 1 ps"
+SIMUL_TIMESCALE = "1 ns / 100 ps"
 SIMUL_RUN_TCL_SCRIPT = ./config/run.tcl
 SIMUL_WAVEFORM_MACRO = ./config/waveform-define.do
 SIMUL_WAVEFORM_FILE = ./waveform.wlf
