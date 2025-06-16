@@ -9,7 +9,8 @@ module memory_map (
     output wire o_test_DV,
     output wire o_sd_card_DV,
     output wire o_xv6_DV,
-    output wire o_uart_DV
+    output wire o_uart_DV,
+    output wire o_plic_DV
 );
 
 `ifdef SIMULATION
@@ -21,9 +22,11 @@ module memory_map (
 `ifdef XV6
   assign o_xv6_DV = (i_address >= 32'h80000000 && i_address < 32'h90000000);
   assign o_uart_DV = (i_address >= 32'h10000000 && i_address < 32'h10000006);
+  assign o_plic_DV = (i_address >= 32'h0c000000 && i_address < (32'h0c000000 + 32'd2102000));
 `else
-  assign o_xv6_DV = 1'b0;  //8kB
-  assign o_uart_DV = 1'b0;  //8kB
+  assign o_xv6_DV = 1'b0;
+  assign o_uart_DV = 1'b0;
+  assign o_plic_DV = 1'b0;
 `endif
 
   //assign o_sdram_DV = (i_address >= 32'h10000000 && i_address < 32'h20000000);

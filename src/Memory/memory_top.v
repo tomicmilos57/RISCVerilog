@@ -127,6 +127,12 @@ module memory_top (
   wire [7:0] w_uart_data_byte;
   // uart wires and regs
 
+  // plic wires and regs
+  wire w_plic_DV;
+  wire w_plic_receive;
+  wire [7:0] w_plic_data_byte;
+  // plic wires and regs
+
   // Global wires and regs
   wire [7:0] w_read_data;  //This register holds data read from submodule that is currently selected
   assign w_read_data = (w_bootloader_receive & w_bootloader_DV) ? w_bootloader_data_byte :
@@ -139,6 +145,7 @@ module memory_top (
                      (w_sd_card_receive & w_sd_card_DV) ? w_sd_card_data_byte :
                      (w_xv6_receive & w_xv6_DV) ? w_xv6_data_byte :
                      (w_uart_receive & w_uart_DV) ? w_uart_data_byte :
+                     (w_plic_receive & w_plic_DV) ? w_plic_data_byte :
                      8'h00;
 
   wire w_global_receive;
@@ -151,7 +158,8 @@ module memory_top (
                           w_test_receive |
                           w_sd_card_receive |
                           w_xv6_receive |
-                          w_uart_receive;
+                          w_uart_receive |
+                          w_plic_receive;
 
   // global data to submodule
   wire [7:0] w_data_to_submodule;
@@ -187,7 +195,8 @@ module memory_top (
       .o_test_DV(w_test_DV),
       .o_sd_card_DV(w_sd_card_DV),
       .o_xv6_DV(w_xv6_DV),
-      .o_uart_DV(w_uart_DV)
+      .o_uart_DV(w_uart_DV),
+      .o_plic_DV(w_plic_DV)
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -253,7 +262,7 @@ module memory_top (
       .i_data(w_data_to_submodule),
       .i_address(w_mar[11:0]),
       .i_write(w_write),
-      .i_request(w_hex_DV & r_request),
+      .i_request(w_hex_dv & r_request),
       .o_data(w_hex_data_byte),
       .o_data_DV(w_hex_receive),
 
@@ -288,7 +297,7 @@ module memory_top (
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-  //  Memory Dedicated For Writing To Hex Display
+  //  Memory For Interfacing Raspberry Pie Pico
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
   gpio_interface gpio_mem (
@@ -306,7 +315,7 @@ module memory_top (
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-  //  Memory Dedicated For Writing To Hex Display
+  //  
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
   ps2_interface ps2_mem (
@@ -339,7 +348,7 @@ module memory_top (
   );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
-  //  Memory Dedicated For Writing To Hex Display
+  //  SD_CARD Memory
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
   sd_card_mem sd_card (
@@ -359,6 +368,11 @@ module memory_top (
 
       .o_sd_card_state(o_sd_card_state)
   );
+
+  // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+  //  PLIC Memory
+  // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  XV6 Simulation Memory
@@ -388,6 +402,17 @@ module memory_top (
       .o_data(w_uart_data_byte),
       .o_data_DV(w_uart_receive)
   );
+
+  plic_mem plic_mem (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[31:0]),
+      .i_write(w_write),
+      .i_request(w_plic_DV & r_request),
+      .o_data(w_plic_data_byte),
+      .o_data_DV(w_plic_receive)
+  );
+
   `endif
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
