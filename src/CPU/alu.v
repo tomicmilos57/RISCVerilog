@@ -69,7 +69,8 @@ module alu (
   reg [31:0] r_INT_address = 32'b0;
 
   reg signed [31:0] r_result = 32'd0;
-  assign o_aluout = r_result;
+  reg signed [31:0] r_clk_result = 32'd0;
+  assign o_aluout = (i_instruction >= 32'd14 && i_instruction <= 32'd17) ? r_clk_result : r_result;
 
   reg o_jump_DV_comb = 1'b0;
 
@@ -89,7 +90,8 @@ module alu (
   assign o_jump_address = r_INT_DV ? r_INT_address : r_address;
 
   reg r_load_regfile = 1'd0;
-  assign o_load_regfile = r_load_regfile;
+  reg r_clk_load_regfile = 1'd0;
+  assign o_load_regfile = (i_instruction >= 32'd14 && i_instruction <= 32'd17) ? r_clk_load_regfile: r_load_regfile;
 
   //Interrupt
   wire FETCH = i_state == 32'h0;
@@ -161,35 +163,35 @@ module alu (
 
     if (EXECUTE) case (i_instruction)
       32'd14: begin
-        if (i_B != 32'b0) r_result <= signed_quotient;
-        else r_result <= -1;
+        if (i_B != 32'b0) r_clk_result <= signed_quotient;
+        else r_clk_result <= -1;
         if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
+          r_clk_load_regfile <= 1'd1;
           r_pipeline <= 32'b0;
         end else r_pipeline <= r_pipeline + 1;
       end  // DIV
 
       32'd15: begin
-        if (i_B != 32'b0) r_result <= unsigned_quotient;
-        else r_result <= -1;
+        if (i_B != 32'b0) r_clk_result <= unsigned_quotient;
+        else r_clk_result <= -1;
         if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
+          r_clk_load_regfile <= 1'd1;
           r_pipeline <= 32'b0;
         end else r_pipeline <= r_pipeline + 1;
       end  // DIVU
 
       32'd16: begin
-        r_result <= signed_remainder;
+        r_clk_result <= signed_remainder;
         if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
+          r_clk_load_regfile <= 1'd1;
           r_pipeline <= 32'b0;
         end else r_pipeline <= r_pipeline + 1;
       end  // REM
 
       32'd17: begin
-        r_result <= unsigned_remainder;
+        r_clk_result <= unsigned_remainder;
         if (r_pipeline == 32'd25) begin
-          r_load_regfile <= 1'd1;
+          r_clk_load_regfile <= 1'd1;
           r_pipeline <= 32'b0;
         end else r_pipeline <= r_pipeline + 1;
       end  // REMU
