@@ -17,6 +17,8 @@ module memory_map (
 
 `ifdef SIMULATION
   assign o_bootloader_DV = (i_address < 32'h00010000);  //64kB
+`else
+  assign o_bootloader_DV = 0;  //64kB
 `endif
 
 `ifdef XV6

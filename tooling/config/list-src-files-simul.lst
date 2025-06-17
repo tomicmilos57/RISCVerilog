@@ -39,3 +39,5 @@ src/SDCard/sd_card_init.v
 src/SDCard/sd_card_read.v
 src/SDCard/sd_card_write.v
 src/UART/uart_simul.v
+src/UART/uart.v
+src/UART/uart_tx.v

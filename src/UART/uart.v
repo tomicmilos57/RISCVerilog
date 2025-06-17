@@ -5,10 +5,15 @@ module uart (
   input wire i_write,
   input wire i_request,
   output reg [7:0] o_data,
-  output reg o_data_DV
+  output reg o_data_DV,
+
+  output wire o_uart_gpio
 );
 
 reg [7:0] mem [0:5];
+reg r_uart_DV = 1'b0;
+wire w_Tx_Done;
+wire w_Tx_Active;
 
 //assign o_data = (i_address < 6) ? mem[i_address] : 8'b0;
 
@@ -42,23 +47,41 @@ end
 
 always @(posedge i_clk) begin
   o_data_DV <= 1'b0;
+  r_uart_DV <= 1'b0;
 
   if (i_request) begin
-    o_data_DV <= 1'b1;
 
-    if (!i_write)
-      if(i_address == 0)
+    if (!i_write)begin
+      if(i_address == 0) begin
         mem[LSR] = 0;
+      end
+      o_data_DV <= 1'b1;
+    end
 
-      if (i_write && i_address < 6) begin
-        mem[i_address] <= i_data;
-        if (i_address == RHR) begin
+    if (i_write && i_address < 6) begin
+      mem[i_address] <= i_data;
+      if (i_address == RHR) begin
+        if (w_Tx_Active == 0) begin
+          r_uart_DV <= 1'b1;
           $write("%c", i_data);
         end
       end
-
     end
   end
+  if (w_Tx_Done) begin
+    o_data_DV <= 1'b1;
+  end
+end
 
-  endmodule
+uart_tx #(434) m_uart_tx (
+  .i_Clock(i_clk),
+  .i_Tx_DV(r_uart_DV),
+  .i_Tx_Byte(i_data),
+  .o_Tx_Active(w_Tx_Active),
+  .o_Tx_Serial(o_uart_gpio),
+  .o_Tx_Done(w_Tx_Done)
+);
+
+
+endmodule
 

@@ -113,8 +113,6 @@ memory_top memory(
 
 `ifdef SIMULATION
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/test.mif";
-`else
-defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
 `endif
 //defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 

@@ -262,6 +262,8 @@ module DE0_TOP (
       .i_gpio_control(GPIO0_D[15:12]),
       .o_gpio_control(GPIO0_D[11:8]),
 
+      .o_uart_gpio(GPIO0_D[16]),
+
       .i_ps2_clk (PS2_KBCLK),
       .i_ps2_data(PS2_KBDAT),
 

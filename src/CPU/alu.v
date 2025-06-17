@@ -158,6 +158,7 @@ module alu (
   always @(posedge i_clk) begin
     o_interrupt_finnished <= 1'b0;
     r_INT_DV <= 1'b0;
+    r_clk_load_regfile <= 1'd0;
 
     if (FETCH) r_pipeline <= 4'b0;
 

@@ -30,6 +30,8 @@ module memory_top (
     input  [3:0] i_gpio_control,
     output [3:0] o_gpio_control,
 
+    output  o_uart_gpio,
+
     output [63:0] o_test_pass,
 
     input i_ps2_clk,
@@ -75,9 +77,9 @@ module memory_top (
 
 
   // Bootloader wires and regs
-  wire w_bootloader_DV;
-  wire w_bootloader_receive;
-  wire [7:0] w_bootloader_data_byte;
+  wire w_bootloader_DV = 1'b0;
+  wire w_bootloader_receive = 1'b0;
+  wire [7:0] w_bootloader_data_byte = 8'b0;
   // Bootloader wires and regs
 
   // GPU wires and regs
@@ -222,20 +224,20 @@ module memory_top (
   //  Cache/Bootloader Fast Memory
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-//`ifdef SIMULATION
-//  cache_altera #(
-//      .DATA_WIDTH(8),
-//      .ADDR_WIDTH(16)
-//  ) bootloader (
-//      .i_clk(i_clk),
-//      .i_data(w_data_to_submodule),
-//      .i_address(w_mar[15:0]),
-//      .i_write(w_write),
-//      .i_request(w_bootloader_DV & r_request),
-//      .o_data(w_bootloader_data_byte),
-//      .o_data_DV(w_bootloader_receive)
-//  );
-//`endif
+`ifdef SIMULATION
+  cache_altera #(
+      .DATA_WIDTH(8),
+      .ADDR_WIDTH(16)
+  ) bootloader (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[15:0]),
+      .i_write(w_write),
+      .i_request(w_bootloader_DV & r_request),
+      .o_data(w_bootloader_data_byte),
+      .o_data_DV(w_bootloader_receive)
+  );
+`endif
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  GPU Dual Port Memory
@@ -386,24 +388,24 @@ module memory_top (
       .o_sd_card_state(o_sd_card_state)
   );
 
-//`else
-//  sd_card_mem_simul sd_card (
-//      .i_clk(i_clk),
-//      .i_data(w_data_to_submodule),
-//      .i_address(w_mar[11:0]),
-//      .i_write(w_write),
-//      .i_request(w_sd_card_DV & r_request),
-//      .o_data(w_sd_card_data_byte),
-//      .o_data_DV(w_sd_card_receive),
-//
-//      .SD_DAT0(SD_DAT0),
-//      .SD_DAT3(SD_DAT3),
-//      .SD_CMD (SD_CMD),
-//      .SD_CLK (SD_CLK),
-//      .SD_WP_N(SD_WP_N),
-//
-//      .o_sd_card_state(o_sd_card_state)
-//  );
+`else
+  sd_card_mem_simul sd_card (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[11:0]),
+      .i_write(w_write),
+      .i_request(w_sd_card_DV & r_request),
+      .o_data(w_sd_card_data_byte),
+      .o_data_DV(w_sd_card_receive),
+
+      .SD_DAT0(SD_DAT0),
+      .SD_DAT3(SD_DAT3),
+      .SD_CMD (SD_CMD),
+      .SD_CLK (SD_CLK),
+      .SD_WP_N(SD_WP_N),
+
+      .o_sd_card_state(o_sd_card_state)
+  );
 `endif
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  PLIC Memory
@@ -446,31 +448,34 @@ module memory_top (
 
 `endif
 
-//`ifdef XV6
-//  cache_altera #(
-//      .DATA_WIDTH(8),
-//      .ADDR_WIDTH(20)
-//  ) xv6_mem (
-//      .i_clk(i_clk),
-//      .i_data(w_data_to_submodule),
-//      .i_address(w_mar[19:0]),
-//      .i_write(w_write),
-//      .i_request(w_xv6_DV & r_request),
-//      .o_data(w_xv6_data_byte),
-//      .o_data_DV(w_xv6_receive)
-//  );
-//
-//  uart_simul m_uart (
-//      .i_clk(i_clk),
-//      .i_data(w_data_to_submodule),
-//      .i_address(w_mar[2:0]),
-//      .i_write(w_write),
-//      .i_request(w_uart_DV & r_request),
-//      .o_data(w_uart_data_byte),
-//      .o_data_DV(w_uart_receive)
-//  );
-//
-//`endif
+  uart m_uart (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[2:0]),
+      .i_write(w_write),
+      .i_request(w_uart_DV & r_request),
+      .o_data(w_uart_data_byte),
+      .o_data_DV(w_uart_receive),
+
+      .o_uart_gpio(o_uart_gpio)
+  );
+
+`ifdef XV6
+  cache_altera #(
+      .DATA_WIDTH(8),
+      .ADDR_WIDTH(20)
+  ) xv6_mem (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[19:0]),
+      .i_write(w_write),
+      .i_request(w_xv6_DV & r_request),
+      .o_data(w_xv6_data_byte),
+      .o_data_DV(w_xv6_receive)
+  );
+
+
+`endif
 
   plic_mem plic_mem (
       .i_clk(i_clk),

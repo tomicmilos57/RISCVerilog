@@ -3,4 +3,5 @@
 /misc/test.ver
 /misc/xv6.mif
 /misc/xv6.ver
+/misc/*
 .nvim
