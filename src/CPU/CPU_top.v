@@ -304,10 +304,10 @@ module CPU_top (
 
   );
 
-  timer m_timer(
-      .i_clk(i_clk),
-      .i_ack(w_interrupt_finnished),
-      .o_int(w_timer_int)
-  );
+  //timer m_timer(
+  //    .i_clk(i_clk),
+  //    .i_ack(w_interrupt_finnished),
+  //    .o_int(w_timer_int)
+  //);
 
 endmodule

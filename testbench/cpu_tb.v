@@ -116,7 +116,7 @@ defparam memory.bootloader.altsyncram_component.init_file = "../misc/test.mif";
 `else
 defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
 `endif
-defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
+//defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 
 `ifdef XV6
 defparam memory.xv6_mem.altsyncram_component.init_file = "../misc/xv6.mif";
@@ -128,16 +128,6 @@ wire [3:0] w_blue;
 wire w_hs;
 wire w_vs;
 
-gpu gpu(
-  .i_CLK(i_clk),
-  .i_PixelData(w_gpu_data),
-  .o_HS(w_hs),
-  .o_VS(w_vs),
-  .o_RdAddr(w_gpu_address),
-  .o_RED(w_red),
-  .o_GREEN(w_green),
-  .o_BLUE(w_blue)
-);
 
 wire [6:0]  HEX0_D;
 wire        HEX0_DP;
@@ -176,10 +166,10 @@ end
 initial begin
   `ifdef SIMULATION
   #10000000;
-  `else
-  #1000000;
-  `endif
   $finish;
+  `else
+  //#200000000;
+  `endif
 end
 
 always @(w_instruction)

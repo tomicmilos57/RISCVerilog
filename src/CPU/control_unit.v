@@ -26,6 +26,7 @@ input i_interrupt_finnished;
 wire w_load_store_instruction = i_instruction >= 32'd27 & i_instruction <= 32'd34;
 wire w_div_rem_instruction = i_instruction >= 32'd14 && i_instruction <= 32'd17;
 wire w_amo_instruction = i_instruction == 32'd60;
+wire w_ecall = i_instruction == 32'd53; //Add ebreak here too
 
 reg [31:0] r_state = 32'b0;
 assign o_state = r_state;
@@ -39,10 +40,11 @@ assign o_load_PC = (w_load_store_instruction & i_bus_DV & EXECUTE) |
   (w_div_rem_instruction & i_div_rem_finnished & EXECUTE) |
   (w_amo_instruction & i_amo_finnished & EXECUTE) |
   (i_interrupt_finnished & (MINT | SINT)) |
-  EXECUTE & ~(w_load_store_instruction | w_div_rem_instruction | w_amo_instruction);
+  EXECUTE & ~(w_load_store_instruction | w_div_rem_instruction | w_amo_instruction | w_ecall);
 
 reg r_start_fetch = 1'h0;
 assign o_start_fetch = r_start_fetch;
+integer num_of_instructions = 32'd0;
 
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 //  Sequential Logic
@@ -53,6 +55,7 @@ always @(posedge i_clk)begin
   if(FETCH)begin
     if(i_bus_DV)begin
       r_state <= 32'd1;
+      num_of_instructions = num_of_instructions + 1;
     end
   end
   else if(EXECUTE)begin
@@ -109,19 +112,26 @@ always @(posedge i_clk)begin
 
   end
 
-  else if(MINT)
+  else if(MINT) begin
     if(i_interrupt_finnished) begin
       r_state <= 32'b0;
       r_start_fetch <= 1'h1;
     end
-  else if(SINT)
+  end
+  else if(SINT) begin
     if(i_interrupt_finnished) begin
       r_state <= 32'b0;
       r_start_fetch <= 1'h1;
     end
+  end
 
 end
 
+always @(num_of_instructions)begin
+  if (num_of_instructions % 1000000 == 0) begin
+    $display("Instruction: %d", num_of_instructions);
+  end
+end
 
 endmodule
 

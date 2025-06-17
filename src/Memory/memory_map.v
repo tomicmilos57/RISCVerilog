@@ -42,6 +42,6 @@ module memory_map (
 
   assign o_test_DV = (i_address >= 32'h60000000 && i_address < 32'h70000000);
 
-  assign o_sd_card_DV = (i_address >= 32'h70000000 && i_address < 32'h80000000);
+  assign o_sd_card_DV = (i_address >= 32'h10001000 && i_address < 32'h10001450);
 
 endmodule

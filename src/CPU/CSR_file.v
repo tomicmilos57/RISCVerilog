@@ -39,7 +39,7 @@ module CSR_file (
   reg [31:0] r_stvec = 32'h00000000;
   reg [31:0] r_mtvec = 32'h00000000;
   reg [31:0] r_satp = 32'h00000000;
-  reg [31:0] r_scause = 32'h00000000;
+  reg [31:0] r_scause = 32'h00000008;
   reg [31:0] r_stval = 32'h00000000;
   reg [31:0] r_mcounteren = 32'h00000000;
   reg [31:0] r_time = 32'h00000000;

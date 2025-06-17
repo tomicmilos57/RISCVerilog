@@ -351,7 +351,7 @@ module memory_top (
   //  SD_CARD Memory
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-  sd_card_mem sd_card (
+  sd_card_mem_simul sd_card (
       .i_clk(i_clk),
       .i_data(w_data_to_submodule),
       .i_address(w_mar[11:0]),

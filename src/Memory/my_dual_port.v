@@ -2,7 +2,8 @@
 
 module my_dual_port #(
     parameter DATA = 72,
-    parameter ADDR = 10
+    parameter ADDR = 10,
+    parameter init_file = ""
 ) (
     // Port A
     input  wire            a_clk,
@@ -21,7 +22,17 @@ module my_dual_port #(
 
   // Shared memory
   reg [DATA-1:0] mem[(2**ADDR)-1:0];
-
+    integer i;
+    initial begin
+        if (init_file != "") begin
+            $readmemh(init_file, mem);  // Load from .mif (hex format)
+        end
+        else begin
+            for (i = 0; i < (2**ADDR); i = i + 1) begin
+                mem[i] = {DATA{1'b0}};  // Fill with zeros
+            end
+        end
+    end
   // Port A
   always @(posedge a_clk) begin
     a_dout <= mem[a_addr];
