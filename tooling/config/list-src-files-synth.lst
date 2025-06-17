@@ -20,7 +20,6 @@ src/Memory/cache_altera.v
 src/Memory/cache_altera_dualport.v
 src/Memory/hex_mem.v
 src/Memory/gpio_interface.v
-src/Memory/test_mem.v
 src/Memory/sd_card_mem.v
 src/Memory/my_dual_port.v
 src/Memory/plic_mem.v

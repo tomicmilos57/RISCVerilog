@@ -17,7 +17,7 @@ output [1023:0] o_regs;
 //  Combinational Logic
 // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-reg signed [31:0] regfile [0:31];
+(* ramstyle = "logic" *) reg signed [31:0] regfile [0:31];
 wire [4:0] w_select_regin = i_IR[11:7];
 wire [4:0] w_select_regout1 = i_IR[19:15];
 wire [4:0] w_select_regout2 = i_IR[24:20];

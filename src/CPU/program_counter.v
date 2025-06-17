@@ -17,7 +17,7 @@ output [31:0] o_PC;
 `ifdef XV6
 reg [31:0] r_PC = 32'h80000000;
 `else
-reg [31:0] r_PC = 32'd0;
+reg [31:0] r_PC = 32'h80000000;
 `endif
 assign o_PC = r_PC;
 

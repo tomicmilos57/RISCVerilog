@@ -188,6 +188,7 @@ module DE0_TOP (
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  REG/WIRE declarations
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
+`define SYNTH
 
   wire i_clk = CLOCK_50;
   wire [31:0] w_input_bus_data;
@@ -272,21 +273,8 @@ module DE0_TOP (
 
       .o_sd_card_state(w_sd_card_state)
   );
-  defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
-      defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
-
-
-  gpu GPU (
-      .i_CLK(i_clk),
-      .i_PixelData(w_gpu_data),
-      .o_HS(VGA_HS),
-      .o_VS(VGA_VS),
-      .o_RdAddr(w_gpu_address),
-      .o_RED(VGA_R),
-      .o_GREEN(VGA_G),
-      .o_BLUE(VGA_B)
-  );
-
+  //defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
+  //defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 
   mux_1024to32 regs_mux (
       .data_in(w_regs),

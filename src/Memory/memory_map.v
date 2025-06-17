@@ -10,29 +10,36 @@ module memory_map (
     output wire o_sd_card_DV,
     output wire o_xv6_DV,
     output wire o_uart_DV,
-    output wire o_plic_DV
+    output wire o_plic_DV,
+    output wire o_synth_32_DV,
+    output wire o_synth_16_DV
 );
 
 `ifdef SIMULATION
   assign o_bootloader_DV = (i_address < 32'h00010000);  //64kB
-`else
-  assign o_bootloader_DV = (i_address < 32'h00002000);  //8kB
 `endif
 
 `ifdef XV6
   assign o_xv6_DV = (i_address >= 32'h80000000 && i_address < 32'h90000000);
-  assign o_uart_DV = (i_address >= 32'h10000000 && i_address < 32'h10000006);
-  assign o_plic_DV = (i_address >= 32'h0c000000 && i_address < (32'h0c000000 + 32'd2102000));
 `else
   assign o_xv6_DV = 1'b0;
-  assign o_uart_DV = 1'b0;
-  assign o_plic_DV = 1'b0;
 `endif
 
-  //assign o_sdram_DV = (i_address >= 32'h10000000 && i_address < 32'h20000000);
+`ifdef SYNTH
+  assign o_synth_32_DV = (i_address >= 32'h80000000 && i_address < 32'h80008000);
+  assign o_synth_16_DV = (i_address >= 32'h80008000 && i_address < 32'h8000c000);
+  assign o_sdram_DV = (i_address >= 32'h8000c000 && i_address < 32'h90000000);
+`else
+  assign o_synth_32_DV = 1'b0;
+  assign o_synth_16_DV = 1'b0;
   assign o_sdram_DV = 1'b0;
+`endif
 
-  assign o_gpu_DV = (i_address >= 32'h20000000 && i_address < 32'h30000000);
+  assign o_uart_DV = (i_address >= 32'h10000000 && i_address < 32'h10000006);
+
+  assign o_plic_DV = (i_address >= 32'h0c000000 && i_address < (32'h0c000000 + 32'd2102000));
+
+  assign o_gpu_DV = 1'b0;
 
   assign o_ps2_DV = (i_address >= 32'h30000000 && i_address < 32'h40000000);
 

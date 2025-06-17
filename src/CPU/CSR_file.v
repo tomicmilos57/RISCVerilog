@@ -26,25 +26,25 @@ module CSR_file (
     output [31:0] o_mscratch
 );
 
-  reg [31:0] r_mhartid = 32'h00000000;
-  reg [31:0] r_mstatus = 32'h00000000;
-  reg [31:0] r_mepc = 32'h00000000;
-  reg [31:0] r_sstatus = 32'h00000000;
-  reg [31:0] r_sip = 32'h00000000;
-  reg [31:0] r_sie = 32'h00000000;
-  reg [31:0] r_mie = 32'h00000000;
-  reg [31:0] r_sepc = 32'h00000000;
-  reg [31:0] r_medeleg = 32'h00000000;
-  reg [31:0] r_mideleg = 32'h00000000;
-  reg [31:0] r_stvec = 32'h00000000;
-  reg [31:0] r_mtvec = 32'h00000000;
-  reg [31:0] r_satp = 32'h00000000;
-  reg [31:0] r_scause = 32'h00000008;
-  reg [31:0] r_stval = 32'h00000000;
-  reg [31:0] r_mcounteren = 32'h00000000;
-  reg [31:0] r_time = 32'h00000000;
-  reg [31:0] r_sscratch = 32'h00000000;
-  reg [31:0] r_mscratch = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mhartid = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mstatus = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mepc = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_sstatus = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_sip = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_sie = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mie = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_sepc = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_medeleg = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mideleg = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_stvec = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mtvec = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_satp = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_scause = 32'h00000008;
+ (* ramstyle = "logic" *) reg [31:0] r_stval = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mcounteren = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_time = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_sscratch = 32'h00000000;
+ (* ramstyle = "logic" *) reg [31:0] r_mscratch = 32'h00000000;
 
   always @(*) begin
     case (i_select)

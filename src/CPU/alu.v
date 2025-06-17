@@ -512,7 +512,7 @@ module alu (
   lpm_divide #(
       .lpm_widthn(32),
       .lpm_widthd(32),
-      .lpm_pipeline(20),
+      .lpm_pipeline(6),
       .lpm_nrepresentation("SIGNED"),
       .lpm_drepresentation("SIGNED"),
       .lpm_hint("USE_DSP=ON")
@@ -528,7 +528,7 @@ module alu (
   lpm_divide #(
       .lpm_widthn(32),
       .lpm_widthd(32),
-      .lpm_pipeline(20),
+      .lpm_pipeline(6),
       .lpm_nrepresentation("UNSIGNED"),
       .lpm_drepresentation("UNSIGNED"),
       .lpm_hint("USE_DSP=ON")
