@@ -306,6 +306,21 @@ module memory_top (
       .o_SDRAM_ADR(SDRAM_A),
       .io_SDRAM_DATA(SDRAM_D)
   );
+`else
+
+  cache_altera #(
+      .DATA_WIDTH(8),
+      .ADDR_WIDTH(23)
+  ) xv6_mem (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[22:0]),
+      .i_write(w_write),
+      .i_request(w_sdram_DV & r_request),
+      .o_data(w_sdram_data_byte),
+      .o_data_DV(w_sdram_receive)
+  );
+
 `endif
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -416,7 +431,6 @@ module memory_top (
   //  XV6 Simulation Memory
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-`ifdef SYNTH
 
   cache_altera #(
       .DATA_WIDTH(8),
@@ -430,7 +444,6 @@ module memory_top (
       .o_data(w_synth_32_data_byte),
       .o_data_DV(w_synth_32_receive)
   );
-  defparam synth_32_mem.altsyncram_component.init_file = "../../misc/kernel_32kB.mif";
 
   cache_altera #(
       .DATA_WIDTH(8),
@@ -444,8 +457,13 @@ module memory_top (
       .o_data(w_synth_16_data_byte),
       .o_data_DV(w_synth_16_receive)
   );
-  defparam synth_16_mem.altsyncram_component.init_file = "../../misc/kernel_16kB.mif";
 
+`ifdef SYNTH
+  defparam synth_32_mem.altsyncram_component.init_file = "../../misc/kernel_32kB.mif";
+  defparam synth_16_mem.altsyncram_component.init_file = "../../misc/kernel_16kB.mif";
+`else
+  defparam synth_32_mem.altsyncram_component.init_file = "../misc/kernel_32kB.mif";
+  defparam synth_16_mem.altsyncram_component.init_file = "../misc/kernel_16kB.mif";
 `endif
 
   uart m_uart (
@@ -460,22 +478,6 @@ module memory_top (
       .o_uart_gpio(o_uart_gpio)
   );
 
-`ifdef XV6
-  cache_altera #(
-      .DATA_WIDTH(8),
-      .ADDR_WIDTH(20)
-  ) xv6_mem (
-      .i_clk(i_clk),
-      .i_data(w_data_to_submodule),
-      .i_address(w_mar[19:0]),
-      .i_write(w_write),
-      .i_request(w_xv6_DV & r_request),
-      .o_data(w_xv6_data_byte),
-      .o_data_DV(w_xv6_receive)
-  );
-
-
-`endif
 
   plic_mem plic_mem (
       .i_clk(i_clk),

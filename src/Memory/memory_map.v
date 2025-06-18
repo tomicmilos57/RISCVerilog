@@ -21,21 +21,11 @@ module memory_map (
   assign o_bootloader_DV = 0;  //64kB
 `endif
 
-`ifdef XV6
-  assign o_xv6_DV = (i_address >= 32'h80000000 && i_address < 32'h90000000);
-`else
   assign o_xv6_DV = 1'b0;
-`endif
 
-`ifdef SYNTH
   assign o_synth_32_DV = (i_address >= 32'h80000000 && i_address < 32'h80008000);
   assign o_synth_16_DV = (i_address >= 32'h80008000 && i_address < 32'h8000c000);
   assign o_sdram_DV = (i_address >= 32'h8000c000 && i_address < 32'h90000000);
-`else
-  assign o_synth_32_DV = 1'b0;
-  assign o_synth_16_DV = 1'b0;
-  assign o_sdram_DV = 1'b0;
-`endif
 
   assign o_uart_DV = (i_address >= 32'h10000000 && i_address < 32'h10000006);
 
