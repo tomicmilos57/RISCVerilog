@@ -25,7 +25,8 @@ module alu (
 
     o_exception_ecall,
     o_exception_ebreak,
-    o_interrupt_finnished
+    o_interrupt_finnished,
+    i_external_interrupt
 );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -59,6 +60,8 @@ module alu (
   output reg o_exception_ecall;
   output reg o_exception_ebreak;
   output reg o_interrupt_finnished;
+
+  input i_external_interrupt;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Combinational Logic
@@ -115,11 +118,12 @@ module alu (
   wire [31:0] w_new_ret_mstatus = {i_mstatus[31:4], i_mstatus[7], i_mstatus[2:0]};
   wire [31:0] w_new_ret_sstatus = {i_sstatus[31:2], i_sstatus[5], i_sstatus[0]};
 
-  reg r_interrupt_state = 1'b0;
+  reg [1:0] r_interrupt_state = 2'b0;
   localparam MSTATUS_CODE = 12'h300;
   localparam MEPC_CODE = 12'h341;
   localparam SSTATUS_CODE = 12'h100;
   localparam SEPC_CODE = 12'h141;
+  localparam SCAUSE_CODE = 12'h142;
 
   //CSR wires
   reg signed [31:0] r_csr_result = 32'd0;
@@ -201,39 +205,51 @@ module alu (
     endcase
 
     if (MINT) begin
-      if(r_interrupt_state == 1'b0) begin
+      if(r_interrupt_state == 2'b0) begin
         r_INT_csr_result <= w_new_mstatus;
         r_INT_csr_load <= 1'b1;
         r_INT_csr_select <= MSTATUS_CODE;
-        r_interrupt_state <= 1'b1;
+        r_interrupt_state <= 2'b01;
       end
-      else if(r_interrupt_state == 1'b1) begin
+      else if(r_interrupt_state == 2'b01) begin
+        r_INT_csr_result <= i_external_interrupt ? 32'h80000009 : 32'd8;
+        r_INT_csr_load <= 1'b1;
+        r_INT_csr_select <= SCAUSE_CODE;
+        r_interrupt_state <= 2'b10;
+      end
+      else if(r_interrupt_state == 2'b10) begin
         r_INT_csr_result <= i_PC;
         r_INT_csr_load <= 1'b1;
         r_INT_csr_select <= MEPC_CODE;
         r_INT_DV <= 1'd1;
         r_INT_jump_DV <= 1'd1;
         r_INT_address <= i_mtvec;
-        r_interrupt_state <= 1'b0;
+        r_interrupt_state <= 2'b0;
         o_interrupt_finnished <= 1'b1;
       end
     end
 
     if (SINT) begin
-      if(r_interrupt_state == 1'b0) begin
+      if(r_interrupt_state == 2'b00) begin
         r_INT_csr_result <= w_new_sstatus;
         r_INT_csr_load <= 1'b1;
         r_INT_csr_select <= SSTATUS_CODE;
-        r_interrupt_state <= 1'b1;
+        r_interrupt_state <= 2'b01;
       end
-      else if(r_interrupt_state == 1'b1) begin
+      else if(r_interrupt_state == 2'b01) begin
+        r_INT_csr_result <= i_external_interrupt ? 32'h80000009 : 32'd8;
+        r_INT_csr_load <= 1'b1;
+        r_INT_csr_select <= SCAUSE_CODE;
+        r_interrupt_state <= 2'b10;
+      end
+      else if(r_interrupt_state == 2'b10) begin
         r_INT_csr_result <= i_PC;
         r_INT_csr_load <= 1'b1;
         r_INT_csr_select <= SEPC_CODE;
         r_INT_DV <= 1'd1;
         r_INT_jump_DV <= 1'd1;
         r_INT_address <= i_stvec;
-        r_interrupt_state <= 1'b0;
+        r_interrupt_state <= 2'b00;
         o_interrupt_finnished <= 1'b1;
       end
     end

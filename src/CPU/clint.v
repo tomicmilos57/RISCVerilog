@@ -13,13 +13,23 @@ module clint(
     input [31:0] mstatus,
     input [31:0] sstatus,
     input [31:0] mie,
-    input [31:0] sie
+    input [31:0] sie,
 
+    input i_external_interrupt
 );
 
 always @(*) begin
     o_s_interrupt = 1'b0;
     o_m_interrupt = 1'b0;
+
+    // -------------------
+    // PS2 Exception
+    // -------------------
+    if (i_external_interrupt) begin
+      if ((mideleg[9] == 1'b1) && (sstatus[1] == 1'b1) && (sie[9] == 1'b1)) begin
+        o_s_interrupt = 1'b1;
+      end
+    end
 
     // -------------------
     // ECALL Exception

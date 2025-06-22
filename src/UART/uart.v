@@ -7,7 +7,10 @@ module uart (
   output reg [7:0] o_data,
   output reg o_data_DV,
 
-  output wire o_uart_gpio
+  output wire o_uart_gpio,
+
+  input wire [7:0] i_ps2_data,
+  input wire i_ps2_DV
 );
 
 reg [7:0] mem [0:5];
@@ -48,6 +51,11 @@ end
 always @(posedge i_clk) begin
   o_data_DV <= 1'b0;
   r_uart_DV <= 1'b0;
+
+  if (i_ps2_DV) begin
+    mem[LSR] <= 8'h01;
+    mem[THR] <= i_ps2_data;
+  end
 
   if (i_request) begin
 

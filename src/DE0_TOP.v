@@ -200,7 +200,7 @@ module DE0_TOP (
   wire w_output_write_notread;
   wire [1023:0] w_regs;
   wire [31:0] w_reg;
-  wire w_state;
+  wire [31:0] w_state;
   wire [31:0] w_PC;
   wire [31:0] w_IR;
 
@@ -210,6 +210,10 @@ module DE0_TOP (
   wire [31:0] w_hex;
 
   wire [7:0] w_sd_card_state;
+
+  wire w_interrupt;
+  wire w_ack;
+  wire w_s_interrupt;
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Structural coding
@@ -227,7 +231,11 @@ module DE0_TOP (
       .o_regs(w_regs),
       .o_state(w_state),
       .o_PC(w_PC),
-      .o_IR(w_IR)
+      .o_IR(w_IR),
+
+      .i_plic_interrupt(w_interrupt),
+      .o_plic_ack(w_ack),
+      .o_s_interrupt(w_s_interrupt)
   );
 
   memory_top memory (
@@ -263,6 +271,7 @@ module DE0_TOP (
       .o_gpio_control(GPIO0_D[11:8]),
 
       .o_uart_gpio(GPIO0_D[16]),
+      .i_uart_rx_gpio(GPIO0_D[17]),
 
       .i_ps2_clk (PS2_KBCLK),
       .i_ps2_data(PS2_KBDAT),
@@ -273,7 +282,10 @@ module DE0_TOP (
       .SD_CLK (SD_CLK),
       .SD_WP_N(SD_WP_N),
 
-      .o_sd_card_state(w_sd_card_state)
+      .o_sd_card_state(w_sd_card_state),
+
+      .i_ack(w_ack),
+      .o_interrupt(w_interrupt)
   );
   //defparam memory.bootloader.altsyncram_component.init_file = "../misc/bootloader.mif";
   //defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
@@ -304,8 +316,13 @@ module DE0_TOP (
       .o_hex0(HEX3_D)
   );
 
-  assign LEDG[0] = w_state == 1'b0;
-  assign LEDG[1] = w_state == 1'b1;
+  assign LEDG[0] = w_state == 32'b0;
+  assign LEDG[1] = w_state == 32'd1;
+  assign LEDG[9] = w_state == 32'd2 || w_state == 32'd3;
+
+  assign LEDG[6] = w_s_interrupt;
+  assign LEDG[7] = w_interrupt;
+  assign LEDG[8] = w_ack;
 
   localparam Init = 8'b0, Idle = 8'h01, Read = 8'h02, Write = 8'h03;
   assign LEDG[2] = w_sd_card_state == Init;

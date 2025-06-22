@@ -31,6 +31,7 @@ module memory_top (
     output [3:0] o_gpio_control,
 
     output  o_uart_gpio,
+    input   i_uart_rx_gpio,
 
     output [63:0] o_test_pass,
 
@@ -43,7 +44,10 @@ module memory_top (
     output SD_CLK,
     input  SD_WP_N,
 
-    output [7:0] o_sd_card_state
+    output [7:0] o_sd_card_state,
+
+    input wire i_ack,
+    output wire o_interrupt
 );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -199,6 +203,9 @@ module memory_top (
   localparam integer TOSEND = 1'b0;
   localparam integer WAITINGFORRESPONSE = 1'b1;
 
+  wire w_ps2_interrupt_DV;
+  wire [7:0] w_ps2_interrupt_data;
+
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Memory Map
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
@@ -347,20 +354,24 @@ module memory_top (
   //  
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
-`ifdef SYNTH
-  ps2_interface ps2_mem (
-      .i_clk(i_clk),
-      .i_data(w_data_to_submodule),
-      .i_address(w_mar[11:0]),
-      .i_write(w_write),
-      .i_request(w_ps2_DV & r_request),
-      .o_data(w_ps2_data_byte),
-      .o_data_DV(w_ps2_receive),
-
-      .i_ps2_clk (i_ps2_clk),
-      .i_ps2_data(i_ps2_data)
+  uart_rx #(434) m_uart_rx (
+    .i_Clock(i_clk),
+    .i_Rx_Serial(i_uart_rx_gpio),
+    .o_Rx_Byte(w_ps2_interrupt_data),
+    .o_Rx_DV(w_ps2_interrupt_DV)
   );
-`endif
+
+//`ifdef SYNTH
+  //ps2_interface ps2_mem (
+  //    .i_clk(i_clk),
+  //    .i_data(),
+  //    .i_address(),
+  //    .i_write(),
+  //    .i_request(),
+  //    .o_data(w_ps2_interrupt_data),
+  //    .o_data_DV(w_ps2_interrupt_DV)
+  //);
+//`endif
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  Memory Dedicated For Test Registers
@@ -422,10 +433,25 @@ module memory_top (
       .o_sd_card_state(o_sd_card_state)
   );
 `endif
+
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  PLIC Memory
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
 
+  plic_mem plic_mem (
+      .i_clk(i_clk),
+      .i_data(w_data_to_submodule),
+      .i_address(w_mar[31:0]),
+      .i_write(w_write),
+      .i_request(w_plic_DV & r_request),
+      .o_data(w_plic_data_byte),
+      .o_data_DV(w_plic_receive),
+
+      .i_ps2_interrupt(w_ps2_interrupt_DV),
+
+      .i_ack(i_ack),
+      .o_interrupt(o_interrupt)
+  );
 
   // ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==
   //  XV6 Simulation Memory
@@ -459,8 +485,8 @@ module memory_top (
   );
 
 `ifdef SYNTH
-  defparam synth_32_mem.altsyncram_component.init_file = "../../misc/kernel_32kB.mif";
-  defparam synth_16_mem.altsyncram_component.init_file = "../../misc/kernel_16kB.mif";
+  defparam synth_32_mem.altsyncram_component.init_file = "../misc/kernel_32kB.mif";
+  defparam synth_16_mem.altsyncram_component.init_file = "../misc/kernel_16kB.mif";
 `else
   defparam synth_32_mem.altsyncram_component.init_file = "../misc/kernel_32kB.mif";
   defparam synth_16_mem.altsyncram_component.init_file = "../misc/kernel_16kB.mif";
@@ -475,18 +501,10 @@ module memory_top (
       .o_data(w_uart_data_byte),
       .o_data_DV(w_uart_receive),
 
-      .o_uart_gpio(o_uart_gpio)
-  );
+      .o_uart_gpio(o_uart_gpio),
 
-
-  plic_mem plic_mem (
-      .i_clk(i_clk),
-      .i_data(w_data_to_submodule),
-      .i_address(w_mar[31:0]),
-      .i_write(w_write),
-      .i_request(w_plic_DV & r_request),
-      .o_data(w_plic_data_byte),
-      .o_data_DV(w_plic_receive)
+      .i_ps2_data(w_ps2_interrupt_data),
+      .i_ps2_DV(w_ps2_interrupt_DV)
   );
 
 

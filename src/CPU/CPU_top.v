@@ -11,7 +11,12 @@ module CPU_top (
     output [  31:0] o_state,
     output [  31:0] o_PC,
     output [  31:0] o_IR,
-    output [  31:0] o_instruction
+    output [  31:0] o_instruction,
+
+    input           i_plic_interrupt,
+    output          o_plic_ack,
+
+    output          o_s_interrupt
 );
 
   //INSTRUCTION REGISTER
@@ -50,6 +55,7 @@ module CPU_top (
   wire w_exception_ecall;
   wire w_exception_ebreak;
   wire w_interrupt_finnished;
+  assign o_plic_ack = w_interrupt_finnished;
 
   //MEM CONTROLER
   wire [31:0] w_bus_data;
@@ -111,6 +117,7 @@ module CPU_top (
 
   //CLINT
   wire w_s_interrupt;
+  assign o_s_interrupt = w_s_interrupt;
   wire w_m_interrupt;
 
 
@@ -158,7 +165,7 @@ module CPU_top (
       .i_div_rem_finnished(w_alu_requests_load_to_regfile),
       .o_state(w_state),
       .o_start_fetch(w_start_fetch),
-      
+
       .i_s_interrupt(w_s_interrupt),
       .i_m_interrupt(w_m_interrupt),
       .i_interrupt_finnished(w_interrupt_finnished)
@@ -213,7 +220,9 @@ module CPU_top (
 
       .o_exception_ecall(w_exception_ecall),
       .o_exception_ebreak(w_exception_ebreak),
-      .o_interrupt_finnished(w_interrupt_finnished)
+      .o_interrupt_finnished(w_interrupt_finnished),
+
+      .i_external_interrupt(i_plic_interrupt)
   );
 
 
@@ -300,8 +309,9 @@ module CPU_top (
       .mstatus(w_mstatus),
       .sstatus(w_sstatus),
       .mie(w_mie),
-      .sie(w_sie)
+      .sie(w_sie),
 
+      .i_external_interrupt(i_plic_interrupt)
   );
 
   //timer m_timer(

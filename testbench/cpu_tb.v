@@ -35,7 +35,10 @@ CPU_top cpu(
   .o_state(w_state),
   .o_PC(w_PC),
   .o_instruction(w_instruction),
-  .o_IR(w_IR)
+  .o_IR(w_IR),
+
+  .i_plic_interrupt(w_interrupt),
+  .o_plic_ack(w_ack)
 );
 
 wire SDRAM_B0;
@@ -108,7 +111,10 @@ memory_top memory(
   .SD_DAT3(SD_DAT3),
   .SD_CMD (SD_CMD),
   .SD_CLK (SD_CLK),
-  .SD_WP_N(SD_WP_N)
+  .SD_WP_N(SD_WP_N),
+  
+  .i_ack(w_ack),
+  .o_interrupt(w_interrupt)
 );
 
 `ifdef SIMULATION
@@ -116,9 +122,9 @@ defparam memory.bootloader.altsyncram_component.init_file = "../misc/test.mif";
 `endif
 //defparam memory.gpu.altsyncram_component.init_file = "../misc/GPUINIT.mif";
 
-`ifdef XV6
-defparam memory.xv6_mem.altsyncram_component.init_file = "../misc/xv6.mif";
-`endif
+//`ifdef XV6
+//defparam memory.xv6_mem.altsyncram_component.init_file = "../misc/xv6.mif";
+//`endif
 
 wire [3:0] w_red;
 wire [3:0] w_green;
