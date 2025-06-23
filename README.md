@@ -11,13 +11,15 @@ The system is fully capable of booting and running **XV6 OS** from an SD card wi
 ## DEMO
 
 
+https://github.com/user-attachments/assets/0f996498-32ea-435e-90ad-518e42083fd4
+
+
+## Hardware VS REMU VS QEMU
 
 
 
 
-https://github.com/user-attachments/assets/6ef42600-270e-4cda-ba40-ff679c90a021
-
-
+https://github.com/user-attachments/assets/bf889b0f-d9ca-4ed2-8a5a-4b2966a812b7
 
 
 
