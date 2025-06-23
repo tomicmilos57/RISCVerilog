@@ -74,6 +74,9 @@ always @(posedge i_clk) begin
           $write("%c", i_data);
         end
       end
+      else begin
+        o_data_DV <= 1'b1;
+      end
     end
   end
   if (w_Tx_Done) begin
